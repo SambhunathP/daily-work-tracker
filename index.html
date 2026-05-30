@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Work Tracker Pro</title>
+<style>
+body{background:#0f0f0f;color:#fff;font-family:Arial,sans-serif;max-width:1200px;margin:auto;padding:20px}
+.card{background:#1b1b1b;border:1px solid #333;border-radius:12px;padding:15px;margin-bottom:18px}
+h1,h2,h3{text-align:center}
+#clock{text-align:center;font-size:18px}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #444;padding:10px;text-align:center}
+th{background:#222}
+input{width:100%;box-sizing:border-box;padding:8px;background:#111;color:#fff;border:1px solid #555}
+button{background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer}
+.progressBox{width:100%;height:24px;background:#333;border-radius:12px;overflow:hidden;margin-top:15px}
+#progressBar{height:100%;width:0%;background:#22c55e}
+.status{text-align:center;font-weight:bold;margin-top:10px}
+
+#historyTables{
+display:flex;
+flex-wrap:wrap;
+gap:12px;
+}
+
+.historyCard{
+width:220px;
+}
+
+.historyHeader{
+background:#2563eb;
+padding:15px;
+border-radius:10px;
+cursor:pointer;
+text-align:center;
+font-weight:bold;
+}
+
+.historyHeader:hover{
+background:#1d4ed8;
+}
+
+.historyContent{
+display:none;
+margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h1>Daily Work Tracker</h1>
+<div id="clock"></div>
+</div>
+
+<div class="card">
+<h2>Today's Work</h2>
+
+<table>
+<thead>
+<tr>
+<th>Subject</th>
+<th>Allocated Hours</th>
+<th>Achieved Hours</th>
+</tr>
+</thead>
+<tbody id="rows"></tbody>
+</table>
+
+<br>
+
+<button onclick="saveDay()">Save Day</button>
+<div id="saveStatus" class="status"></div>
+
+<br>
+
+<table>
+<tr>
+<th>Total Allocated</th>
+<th>Total Achieved</th>
+<th>Success Rate</th>
+<th>Remark</th>
+</tr>
+
+<tr>
+<td id="allocated">0 hrs</td>
+<td id="achieved">0 hrs</td>
+<td id="rate">0%</td>
+<td id="todayRemark">🔴 Needs Improvement</td>
+</tr>
+</table>
+
+</div>
+
+<div class="card" id="weeklyReport" style="display:none">
+<h2>📊 Weekly Report</h2>
+
+<table>
+<tr>
+<th>Total Allocated</th>
+<th>Total Achieved</th>
+<th>Success Rate</th>
+<th>Remark</th>
+</tr>
+
+<tr>
+<td id="wAlloc"></td>
+<td id="wAch"></td>
+<td id="wRate"></td>
+<td id="weekRemark"></td>
+</tr>
+</table>
+
+<div class="progressBox">
+<div id="progressBar"></div>
+</div>
+
+<h3 id="weekStatus"></h3>
+</div>
+
+<div class="card">
+<h2>📅 Previous Days History</h2>
+<div id="historyTables"></div>
+</div>
+
+<script>
+const nowLocal = new Date();
+const today =
+nowLocal.getFullYear() + '-' +
+String(nowLocal.getMonth()+1).padStart(2,'0') + '-' +
+String(nowLocal.getDate()).padStart(2,'0');
+
+for(let i=0;i<6;i++){
+rows.innerHTML += `
+<tr>
+<td><input class="subject"></td>
+<td><input type="number" class="given" value="0"></td>
+<td><input type="number" class="done" value="0"></td>
+</tr>`;
+}
+
+function tick(){
+clock.innerText=new Date().toLocaleString();
+}
+setInterval(tick,1000);
+tick();
+
+function getStore(){
+return JSON.parse(localStorage.getItem('workTracker') || '{}');
+}
+
+function calc(){
+
+let g=0,a=0;
+
+document.querySelectorAll('.given').forEach(x=>g+=+x.value||0);
+document.querySelectorAll('.done').forEach(x=>a+=+x.value||0);
+
+allocated.innerText=g+' hrs';
+achieved.innerText=a+' hrs';
+
+let success=g?((a/g)*100).toFixed(2):0;
+
+rate.innerText=success+'%';
+
+if(success>=85){
+todayRemark.innerText='🟢 Excellent';
+}else if(success>=70){
+todayRemark.innerText='🟡 Good';
+}else{
+todayRemark.innerText='🔴 Needs Improvement';
+}
+}
+
+document.addEventListener('input',calc);
+
+function lockInputs(){
+document.querySelectorAll('input').forEach(i=>i.disabled=true);
+}
+
+function saveDay(){
+
+let store=getStore();
+
+if(store[today] && store[today].locked){
+alert('Already saved.');
+return;
+}
+
+let data=[];
+
+document.querySelectorAll('#rows tr').forEach(r=>{
+let i=r.querySelectorAll('input');
+
+data.push({
+subject:i[0].value,
+given:+i[1].value||0,
+achieved:+i[2].value||0
+});
+});
+
+store[today]={locked:true,data:data};
+
+localStorage.setItem('workTracker',JSON.stringify(store));
+
+lockInputs();
+saveStatus.innerText='✅ Saved & Locked';
+
+loadHistory();
+generateWeeklyReport();
+}
+
+function loadToday(){
+
+let store=getStore();
+
+if(!store[today]) return;
+
+store[today].data.forEach((r,i)=>{
+document.querySelectorAll('.subject')[i].value=r.subject;
+document.querySelectorAll('.given')[i].value=r.given;
+document.querySelectorAll('.done')[i].value=r.achieved;
+});
+
+if(store[today].locked){
+lockInputs();
+saveStatus.innerText='🔒 Saved Record';
+}
+
+calc();
+}
+
+function toggleHistory(date){
+
+const box=document.getElementById(`history-${date}`);
+
+if(box.style.display==='block'){
+box.style.display='none';
+}else{
+box.style.display='block';
+}
+}
+
+function loadHistory(){
+
+let store=getStore();
+
+historyTables.innerHTML='';
+
+Object.keys(store).sort().reverse().forEach(date=>{
+
+if(date===today) return;
+
+let alloc=0;
+let ach=0;
+let rows='';
+
+store[date].data.forEach(r=>{
+
+alloc += r.given || 0;
+ach += r.achieved || 0;
+
+rows += `
+<tr>
+<td>${r.subject}</td>
+<td>${r.given}</td>
+<td>${r.achieved}</td>
+</tr>`;
+});
+
+let success=alloc?((ach/alloc)*100).toFixed(2):0;
+
+let remark='🔴 Needs Improvement';
+
+if(success>=85){
+remark='🟢 Excellent';
+}else if(success>=70){
+remark='🟡 Good';
+}
+
+historyTables.innerHTML += `
+<div class="historyCard">
+
+<div class="historyHeader"
+onclick="toggleHistory('${date}')">
+📅 ${date}<br>
+${success}%<br>
+${remark}
+</div>
+
+<div id="history-${date}" class="historyContent">
+
+<table>
+<tr>
+<th>Subject</th>
+<th>Allocated</th>
+<th>Achieved</th>
+</tr>
+${rows}
+</table>
+
+<br>
+
+<table>
+<tr>
+<th>Total Allocated</th>
+<th>Total Achieved</th>
+<th>Success Rate</th>
+<th>Remark</th>
+</tr>
+
+<tr>
+<td>${alloc} hrs</td>
+<td>${ach} hrs</td>
+<td>${success}%</td>
+<td>${remark}</td>
+</tr>
+</table>
+
+</div>
+</div>`;
+});
+}
+
+function generateWeeklyReport(){
+
+const now=new Date();
+
+if(now.getDay()!==0){
+weeklyReport.style.display='none';
+return;
+}
+
+let store=getStore();
+let alloc=0;
+let ach=0;
+
+for(let i=7;i>=1;i--){
+
+let d=new Date(now);
+d.setDate(now.getDate()-i);
+
+let key =
+d.getFullYear() + '-' +
+String(d.getMonth()+1).padStart(2,'0') + '-' +
+String(d.getDate()).padStart(2,'0');
+
+if(store[key]){
+store[key].data.forEach(r=>{
+alloc += r.given || 0;
+ach += r.achieved || 0;
+});
+}
+}
+
+let success=alloc?((ach/alloc)*100).toFixed(2):0;
+
+wAlloc.innerText=alloc+' hrs';
+wAch.innerText=ach+' hrs';
+wRate.innerText=success+'%';
+
+progressBar.style.width=success+'%';
+
+if(success>=85){
+weekStatus.innerText='🟢 Excellent';
+weekRemark.innerText='🟢 Excellent';
+}else if(success>=70){
+weekStatus.innerText='🟡 Good';
+weekRemark.innerText='🟡 Good';
+}else{
+weekStatus.innerText='🔴 Needs Improvement';
+weekRemark.innerText='🔴 Needs Improvement';
+}
+
+weeklyReport.style.display='block';
+}
+
+loadToday();
+loadHistory();
+generateWeeklyReport();
+</script>
+
+</body>
+</html>
