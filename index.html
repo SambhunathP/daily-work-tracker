@@ -45,6 +45,91 @@ background:#1d4ed8;
 display:none;
 margin-top:10px;
 }
+
+
+
+
+
+
+
+ @media (max-width:768px){
+
+body{
+    padding:10px;
+}
+
+.card{
+    padding:10px;
+    margin-bottom:12px;
+}
+
+h1{
+    font-size:24px;
+}
+
+h2{
+    font-size:20px;
+}
+
+h3{
+    font-size:18px;
+}
+
+#clock{
+    font-size:14px;
+}
+
+table{
+    font-size:12px;
+    display:block;
+    overflow-x:auto;
+    white-space:nowrap;
+}
+
+th,
+td{
+    padding:6px;
+}
+
+input{
+    font-size:14px;
+    padding:6px;
+}
+
+button{
+    width:100%;
+    margin-top:10px;
+    font-size:16px;
+}
+
+.historyCard{
+    width:100%;
+}
+
+.historyHeader{
+    padding:12px;
+    font-size:14px;
+}
+
+.progressBox{
+    height:20px;
+}
+
+#allocated,
+#achieved,
+#rate,
+#todayRemark,
+#wAlloc,
+#wAch,
+#wRate,
+#weekRemark{
+    font-size:13px;
+}
+
+.status{
+    font-size:14px;
+}
+}
 </style>
 </head>
 <body>
@@ -403,7 +488,29 @@ await loadToday();
 await loadHistory();
 await generateWeeklyReport();
 })();
+
+
+
+
+ document.addEventListener('input', (e) => {
+
+  if(e.target.classList.contains('subject')){
+
+    let value = e.target.value;
+
+    if(value.length > 0){
+      e.target.value =
+      value.charAt(0).toUpperCase() +
+      value.slice(1);
+    }
+
+  }
+
+});
 </script>
+
+
+ 
 
 </body>
 </html>
