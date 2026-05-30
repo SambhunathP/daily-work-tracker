@@ -162,8 +162,9 @@ clock.innerText=new Date().toLocaleString();
 setInterval(tick,1000);
 tick();
 
-function getStore(){
-return JSON.parse(localStorage.getItem('workTracker') || '{}');
+async function getStore(){
+const snapshot = await get(ref(db,'workTracker'));
+return snapshot.exists() ? snapshot.val() : {};
 }
 
 function calc(){
@@ -195,9 +196,9 @@ function lockInputs(){
 document.querySelectorAll('input').forEach(i=>i.disabled=true);
 }
 
-function saveDay(){
+async function saveDay(){
 
-let store=getStore();
+let store=await getStore();
 
 if(store[today] && store[today].locked){
 alert('Already saved.');
@@ -216,9 +217,10 @@ achieved:+i[2].value||0
 });
 });
 
-store[today]={locked:true,data:data};
-
-localStorage.setItem('workTracker',JSON.stringify(store));
+await set(
+ref(db,'workTracker/'+today),
+{locked:true,data:data}
+);
 
 lockInputs();
 saveStatus.innerText='✅ Saved & Locked';
@@ -229,9 +231,9 @@ generateWeeklyReport();
 
 window.saveDay = saveDay;
 
-function loadToday(){
+async function loadToday(){
 
-let store=getStore();
+let store=await getStore();
 
 if(!store[today]) return;
 
@@ -262,9 +264,9 @@ box.style.display='block';
 
 window.toggleHistory = toggleHistory;
 
-function loadHistory(){
+async function loadHistory(){
 
-let store=getStore();
+let store=await getStore();
 
 historyTables.innerHTML='';
 
@@ -343,7 +345,7 @@ ${rows}
 });
 }
 
-function generateWeeklyReport(){
+async function generateWeeklyReport(){
 
 const now=new Date();
 
@@ -352,7 +354,7 @@ weeklyReport.style.display='none';
 return;
 }
 
-let store=getStore();
+let store=await getStore();
 let alloc=0;
 let ach=0;
 
@@ -396,9 +398,11 @@ weekRemark.innerText='🔴 Needs Improvement';
 weeklyReport.style.display='block';
 }
 
-loadToday();
-loadHistory();
-generateWeeklyReport();
+(async ()=>{
+await loadToday();
+await loadHistory();
+await generateWeeklyReport();
+})();
 </script>
 
 </body>
