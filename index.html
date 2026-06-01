@@ -426,13 +426,17 @@ String(nowLocal.getMonth()+1).padStart(2,'0') + '-' +
 String(nowLocal.getDate()).padStart(2,'0');
 
 function addRow(){
-rows.innerHTML += `
-<tr>
+
+const tr=document.createElement('tr');
+
+tr.innerHTML=`
 <td><input class="subject"></td>
 <td><input type="number" class="given" value="0"></td>
 <td><input type="number" class="done" value="0"></td>
 <td><button type="button" onclick="this.closest('tr').remove();calc();">❌</button></td>
-</tr>`;
+`;
+
+document.getElementById('rows').appendChild(tr);
 }
 window.addRow=addRow;
 
@@ -810,6 +814,11 @@ ${remark}
 
 (async ()=>{
 await loadToday();
+
+if(rows.children.length===0){
+addRow();
+}
+
 await loadHistory();
 await generateWeeklyReport();
 await generateMonthReports();
