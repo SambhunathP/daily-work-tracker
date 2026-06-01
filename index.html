@@ -554,8 +554,9 @@ ref(db,'workTracker/'+today),
 lockInputs();
 saveStatus.innerText='✅ Saved & Locked';
 
-loadHistory();
-generateWeeklyReport();
+await loadHistory();
+await generateWeeklyReport();
+await generateMonthReports();
 }
 
 window.saveDay = saveDay;
@@ -679,11 +680,6 @@ ${rows}
 async function generateWeeklyReport(){
 
 const now=new Date();
-
-if(now.getDay()!==0){
-weeklyReport.style.display='none';
-return;
-}
 
 let store=await getStore();
 let alloc=0;
