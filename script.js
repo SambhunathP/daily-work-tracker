@@ -475,7 +475,7 @@ await generateMonthReports();
 
 
 
-document.addEventListener('keydown',(e)=>{
+document.addEventListener('input',(e)=>{
 
     if(
         !e.target.classList.contains('given') &&
@@ -484,40 +484,29 @@ document.addEventListener('keydown',(e)=>{
         return;
     }
 
-    if(!/^[0-9]$/.test(e.key)){
+    let digits = e.target.value.replace(/\D/g,'');
+
+    if(digits === ''){
+        e.target.value = '';
+        calc();
         return;
     }
 
-    e.preventDefault();
+    // Keep only last 4 digits
+    digits = digits.slice(-4);
 
-    let value = e.target.value || '0:00';
+    let padded = digits.padStart(4,'0');
 
-    let parts = value.split(':');
+    let hh = parseInt(padded.slice(0,2),10);
+    let mm = parseInt(padded.slice(2,4),10);
 
-    let h = parts[0];
-    let m = parts[1];
+    if(mm > 59) mm = 59;
+    if(hh > 12) hh = 12;
 
-    if(document.activeElement.selectionStart <= h.length){
-
-        // Hour side
-        e.target.value = e.key + ':' + m;
-
-        setTimeout(()=>{
-            e.target.setSelectionRange(
-                e.target.value.indexOf(':') + 1,
-                e.target.value.indexOf(':') + 1
-            );
-        },0);
-
-    }else{
-
-        // Minute side
-        let digits = m.replace(/\D/g,'');
-
-        digits = (digits + e.key).slice(-2);
-
-        e.target.value = h + ':' + digits;
-    }
+    e.target.value =
+        String(hh).padStart(2,'0') +
+        ':' +
+        String(mm).padStart(2,'0');
 
     calc();
 
