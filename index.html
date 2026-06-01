@@ -311,6 +311,53 @@ grid-template-columns:1fr !important;
 }
 body{width:100% !important;}
 }
+
+#historyDetailsWrapper{width:100%;overflow-x:auto;}
+#historyDetails{width:100%;}
+#historyDetails table{width:100%;min-width:600px;border-collapse:collapse;}
+@media (max-width:768px){
+#historyDetailsWrapper{width:100%;overflow-x:auto;}
+#historyDetails table{min-width:600px;}
+.historyCard,.monthPremium{width:100%!important;max-width:100%!important;}
+}
+
+
+/* MOBILE FIX FOR PREVIOUS DATE TABLE */
+@media (max-width:768px){
+
+#historyDetails{
+width:100% !important;
+overflow:visible !important;
+}
+
+#historyDetails table{
+width:100% !important;
+min-width:100% !important;
+display:table !important;
+table-layout:fixed !important;
+white-space:normal !important;
+font-size:11px !important;
+}
+
+#historyDetails th,
+#historyDetails td{
+padding:4px !important;
+word-break:break-word !important;
+white-space:normal !important;
+}
+
+#historyTables{
+display:grid !important;
+grid-template-columns:1fr !important;
+}
+
+.historyCard{
+width:100% !important;
+max-width:100% !important;
+}
+
+}
+
 </style>
 
 </head>
@@ -388,7 +435,7 @@ body{width:100% !important;}
 
 <div class="card">
 <h2>📅 Previous Days History</h2>
-<div id="historyTables"></div><div id="historyDetails" style="margin-top:15px"></div>
+<div id="historyTables"></div><div id="historyDetailsWrapper"><div id="historyDetails" style="margin-top:15px"></div></div>
 </div>
 
 <div class="card">
@@ -428,14 +475,12 @@ String(nowLocal.getDate()).padStart(2,'0');
 function addRow(){
 
 const tr=document.createElement('tr');
-
 tr.innerHTML=`
 <td><input class="subject"></td>
 <td><input type="number" class="given" value="0"></td>
 <td><input type="number" class="done" value="0"></td>
 <td><button type="button" onclick="this.closest('tr').remove();calc();">❌</button></td>
 `;
-
 document.getElementById('rows').appendChild(tr);
 }
 window.addRow=addRow;
@@ -814,11 +859,7 @@ ${remark}
 
 (async ()=>{
 await loadToday();
-
-if(rows.children.length===0){
-addRow();
-}
-
+if(rows.children.length===0){addRow();}
 await loadHistory();
 await generateWeeklyReport();
 await generateMonthReports();
