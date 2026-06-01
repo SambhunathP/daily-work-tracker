@@ -22,10 +22,20 @@ button{background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius
 display:flex;
 flex-wrap:wrap;
 gap:12px;
+align-items:flex-start;
+}
+
+#weekHistory,#monthHistory{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:12px;
 }
 
 .historyCard{
-width:220px;
+flex:1 1 220px;
+max-width:250px;
+min-height:auto;
+height:auto;
 }
 
 .historyHeader{
@@ -53,6 +63,8 @@ margin-top:10px;
 
 
  @media (max-width:768px){
+#historyTables{grid-template-columns:1fr;}
+
 
 body{
     padding:10px;
@@ -130,7 +142,177 @@ button{
     font-size:14px;
 }
 }
+
+#weekHistory,#monthHistory{display:flex;flex-wrap:wrap;gap:12px}
+.monthCard{width:320px}
+@media (max-width:768px){
+.monthCard{width:100%}
+}
+
+.monthPremium{
+background:linear-gradient(135deg,#1e293b,#0f172a);
+border:1px solid #3b82f6;
+border-radius:16px;
+padding:18px;
+width:280px;
+box-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+.monthTitle{
+text-align:center;
+font-size:18px;
+font-weight:bold;
+margin-bottom:12px;
+}
+.monthMetric{
+background:#111827;
+border-radius:10px;
+padding:10px;
+margin:8px 0;
+text-align:center;
+}
+.monthMetric label{
+display:block;
+font-size:12px;
+opacity:.8;
+}
+.monthMetric span{
+font-size:18px;
+font-weight:bold;
+}
+.monthRemark{
+margin-top:12px;
+text-align:center;
+font-size:18px;
+font-weight:bold;
+}
+
 </style>
+
+<style>
+/* RESPONSIVE ENHANCEMENTS */
+.actionButtons{display:flex;gap:10px;flex-wrap:wrap}
+.actionButtons button{flex:1;min-width:140px}
+
+#historyTables,#weekHistory,#monthHistory{
+display:grid !important;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:14px;
+}
+
+.historyCard,.monthPremium{
+width:100% !important;
+max-width:none !important;
+box-sizing:border-box;
+}
+
+.monthPremium{
+min-height:260px;
+}
+
+table{
+width:100%;
+}
+
+input{
+min-width:80px;
+}
+.subject{
+min-width:140px;
+}
+
+@media (max-width:768px){
+
+body{
+padding:8px !important;
+}
+
+.card{
+padding:10px !important;
+}
+
+h1{font-size:22px}
+h2{font-size:18px}
+h3{font-size:16px}
+
+#historyTables,#weekHistory,#monthHistory{
+grid-template-columns:1fr !important;
+}
+
+button{
+width:100%;
+}
+
+table{
+display:block;
+overflow-x:auto;
+white-space:nowrap;
+}
+
+.historyHeader{
+font-size:14px;
+}
+
+.monthTitle{
+font-size:16px;
+}
+
+.monthMetric span{
+font-size:16px;
+}
+}
+</style>
+
+
+<style>
+body{max-width:1600px !important;width:95% !important;margin:auto !important;}
+
+#historyTables{
+display:grid !important;
+grid-template-columns:repeat(4,1fr) !important;
+gap:16px !important;
+}
+
+#weekHistory{
+display:grid !important;
+grid-template-columns:repeat(4,1fr) !important;
+gap:16px !important;
+}
+
+#monthHistory{
+display:grid !important;
+grid-template-columns:repeat(3,1fr) !important;
+gap:16px !important;
+}
+
+.historyCard,.monthPremium{
+max-width:none !important;
+width:100% !important;
+transition:.3s;
+box-sizing:border-box;
+}
+
+.historyCard:hover,.monthPremium:hover{
+transform:translateY(-4px);
+box-shadow:0 10px 25px rgba(37,99,235,.25);
+}
+
+@media (max-width:1200px){
+#historyTables,#weekHistory{
+grid-template-columns:repeat(3,1fr) !important;
+}
+#monthHistory{
+grid-template-columns:repeat(2,1fr) !important;
+}
+}
+
+@media (max-width:768px){
+#historyTables,#weekHistory,#monthHistory{
+grid-template-columns:1fr !important;
+}
+body{width:100% !important;}
+}
+</style>
+
 </head>
 <body>
 
@@ -147,7 +329,7 @@ button{
 <tr>
 <th>Subject</th>
 <th>Allocated Hours</th>
-<th>Achieved Hours</th>
+<th>Achieved Hours</th><th>Action</th>
 </tr>
 </thead>
 <tbody id="rows"></tbody>
@@ -155,7 +337,7 @@ button{
 
 <br>
 
-<button onclick="saveDay()">Save Day</button>
+<div class="actionButtons"><button onclick="addRow()">➕ Add Subject</button><button onclick="saveDay()">💾 Save Day</button></div>
 <div id="saveStatus" class="status"></div>
 
 <br>
@@ -206,8 +388,19 @@ button{
 
 <div class="card">
 <h2>📅 Previous Days History</h2>
-<div id="historyTables"></div>
+<div id="historyTables"></div><div id="historyDetails" style="margin-top:15px"></div>
 </div>
+
+<div class="card">
+<h2>📊 Current Month Weekly Reports</h2>
+<div id="weekHistory"></div>
+</div>
+
+<div class="card">
+<h2>📆 Monthly Reports</h2>
+<div id="monthHistory"></div>
+</div>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -232,14 +425,16 @@ nowLocal.getFullYear() + '-' +
 String(nowLocal.getMonth()+1).padStart(2,'0') + '-' +
 String(nowLocal.getDate()).padStart(2,'0');
 
-for(let i=0;i<6;i++){
+function addRow(){
 rows.innerHTML += `
 <tr>
 <td><input class="subject"></td>
 <td><input type="number" class="given" value="0"></td>
 <td><input type="number" class="done" value="0"></td>
+<td><button type="button" onclick="this.closest('tr').remove();calc();">❌</button></td>
 </tr>`;
 }
+window.addRow=addRow;
 
 function tick(){
 clock.innerText=new Date().toLocaleString();
@@ -338,15 +533,17 @@ calc();
 
 function toggleHistory(date){
 
-const box=document.getElementById(`history-${date}`);
+const panel=document.getElementById('historyDetails');
 
-if(box.style.display==='block'){
-box.style.display='none';
-}else{
-box.style.display='block';
-}
-}
+document.querySelectorAll('.historyHeader').forEach(h=>{
+h.style.background='#2563eb';
+});
 
+const selected=document.getElementById(`detail-${date}`);
+
+panel.innerHTML=selected ? selected.innerHTML : '';
+
+}
 window.toggleHistory = toggleHistory;
 
 async function loadHistory(){
@@ -355,7 +552,7 @@ let store=await getStore();
 
 historyTables.innerHTML='';
 
-Object.keys(store).sort().reverse().forEach(date=>{
+Object.keys(store).sort().reverse().slice(0,8).forEach(date=>{
 
 if(date===today) return;
 
@@ -396,7 +593,7 @@ ${success}%<br>
 ${remark}
 </div>
 
-<div id="history-${date}" class="historyContent">
+<div id="detail-${date}" class="historyContent">
 
 <table>
 <tr>
@@ -483,10 +680,139 @@ weekRemark.innerText='🔴 Needs Improvement';
 weeklyReport.style.display='block';
 }
 
+
+async function generateMonthReports(){
+let store=await getStore();
+
+weekHistory.innerHTML='';
+monthHistory.innerHTML='';
+
+const now=new Date();
+const month=now.getMonth();
+const year=now.getFullYear();
+
+
+const monthName = new Date(year,month,1).toLocaleString('default',{month:'long'});
+
+let calendarWeeks=[];
+let firstDate=new Date(year,month,1);
+let lastDate=new Date(year,month+1,0);
+
+let firstSunday=new Date(firstDate);
+while(firstSunday.getDay()!==0){
+ firstSunday.setDate(firstSunday.getDate()-1);
+}
+
+let weekStart=new Date(firstSunday);
+
+while(weekStart<=lastDate){
+ let weekEnd=new Date(weekStart);
+ weekEnd.setDate(weekStart.getDate()+6);
+
+ calendarWeeks.push({
+   start:new Date(weekStart),
+   end:new Date(weekEnd),
+   alloc:0,
+   ach:0
+ });
+
+ weekStart.setDate(weekStart.getDate()+7);
+}
+
+Object.keys(store).forEach(date=>{
+ let d=new Date(date);
+
+ // allow cross-month Sunday-Saturday weeks
+
+ calendarWeeks.forEach(w=>{
+   if(d>=w.start && d<=w.end){
+      store[date].data.forEach(r=>{
+        w.alloc += r.given||0;
+        w.ach += r.achieved||0;
+      });
+   }
+ });
+});
+
+calendarWeeks.forEach((w,index)=>{
+
+ if(!w.alloc && !w.ach) return;
+
+ let rate=w.alloc?((w.ach/w.alloc)*100).toFixed(2):0;
+
+ weekHistory.innerHTML += `
+ <div class="historyCard">
+ <div class="historyHeader">
+ 📅 ${monthName} Week ${index+1}
+ <br>
+ ${w.start.getDate()} ${w.start.toLocaleString('default',{month:'short'})}
+ -
+ ${w.end.getDate()} ${w.end.toLocaleString('default',{month:'short'})}
+ <br><br>
+ ${rate}%
+ </div>
+ </div>`;
+});
+
+
+for(let m=1;m<=12;m++){
+ let target=new Date();
+ target.setMonth(target.getMonth()-m);
+
+ let alloc=0, ach=0;
+
+ Object.keys(store).forEach(date=>{
+  let d=new Date(date);
+  if(d.getMonth()===target.getMonth() && d.getFullYear()===target.getFullYear()){
+    store[date].data.forEach(r=>{
+      alloc+=r.given||0;
+      ach+=r.achieved||0;
+    });
+  }
+ });
+
+ if(!alloc && !ach) continue;
+
+ let success=alloc?((ach/alloc)*100).toFixed(2):0;
+ let remark='🔴 Needs Improvement';
+ if(success>=85) remark='🟢 Excellent';
+ else if(success>=70) remark='🟡 Good';
+
+ monthHistory.innerHTML += `
+<div class="monthPremium">
+
+<div class="monthTitle">
+📆 ${target.toLocaleString('default',{month:'long'})} ${target.getFullYear()}
+</div>
+
+<div class="monthMetric">
+<label>Total Allocated</label>
+<span>${alloc} hrs</span>
+</div>
+
+<div class="monthMetric">
+<label>Total Achieved</label>
+<span>${ach} hrs</span>
+</div>
+
+<div class="monthMetric">
+<label>Success Rate</label>
+<span>${success}%</span>
+</div>
+
+<div class="monthRemark">
+${remark}
+</div>
+
+</div>`;
+}
+}
+
 (async ()=>{
 await loadToday();
 await loadHistory();
 await generateWeeklyReport();
+await generateMonthReports();
 })();
 
 
