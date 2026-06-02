@@ -465,7 +465,7 @@ ${minutesToTime(w.ach)}
 📊 ${rate}%
 
 </div>
-</div>`;
+</div>`;});
 
 
 
