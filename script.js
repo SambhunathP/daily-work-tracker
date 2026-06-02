@@ -229,6 +229,19 @@ let alloc=0;
 let ach=0;
 let rows='';
 
+// store[date].data.forEach(r=>{
+
+// alloc += timeToMinutes(r.given);
+// ach += timeToMinutes(r.achieved);
+
+// rows += `
+// <tr>
+// <td>${r.subject}</td>
+// <td>${r.given}</td>
+// <td>${r.achieved}</td>
+// </tr>`;
+// });
+
 store[date].data.forEach(r=>{
 
 alloc += timeToMinutes(r.given);
@@ -241,6 +254,17 @@ rows += `
 <td>${r.achieved}</td>
 </tr>`;
 });
+
+// Total Row
+rows += `
+<tr style="font-weight:bold;background:rgba(255,255,255,0.08);">
+<td>Total</td>
+<td>${minutesToTime(alloc)}</td>
+<td>${minutesToTime(ach)}</td>
+</tr>`;
+
+
+ 
 
 let success=alloc?((ach/alloc)*100).toFixed(2):0;
 
