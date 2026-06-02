@@ -438,31 +438,33 @@ calendarWeeks.forEach((w,index)=>{
 
 
 
- weekHistory.innerHTML += `
+weekHistory.innerHTML += `
 <div class="historyCard">
-    <div class="historyHeader">
-        📅 ${monthName} Week ${index + 1}
-        <br>
-        ${w.start.getDate()} ${w.start.toLocaleString('default', { month: 'short' })}
-        -
-        ${w.end.getDate()} ${w.end.toLocaleString('default', { month: 'short' })}
+<div class="historyHeader">
 
-        <br><br>
+📅 ${monthName} Week ${index+1}
+<br>
+${w.start.getDate()} ${w.start.toLocaleString('default',{month:'short'})}
+-
+${w.end.getDate()} ${w.end.toLocaleString('default',{month:'short'})}
 
-        ⏱ Total Allocated
-        <br>
-        ${minutesToTime(w.alloc)}
+<br><br>
 
-        <br><br>
+⏱ Total Allocated
+<br>
+${minutesToTime(w.alloc)}
 
-        ✅ Total Achieved
-        <br>
-        ${minutesToTime(w.ach)}
+<br><br>
 
-        <br><br>
+✅ Total Achieved
+<br>
+${minutesToTime(w.ach)}
 
-        📊 ${rate}%
-    </div>
+<br><br>
+
+📊 ${rate}%
+
+</div>
 </div>`;
 
 
