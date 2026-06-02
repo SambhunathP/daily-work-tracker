@@ -422,46 +422,50 @@ calendarWeeks.forEach((w,index)=>{
         ? ((w.ach/w.alloc)*100).toFixed(2)
         : 0;
 
-    weekHistory.innerHTML += `
-    <div class="historyCard">
+//     weekHistory.innerHTML += `
+//     <div class="historyCard">
+//     <div class="historyHeader">
+//     📅 ${monthName} Week ${index+1}
+//     <br>
+//     ${w.start.getDate()} ${w.start.toLocaleString('default',{month:'short'})}
+//     -
+//     ${w.end.getDate()} ${w.end.toLocaleString('default',{month:'short'})}
+//     <br><br>
+//     ${rate}%
+//     </div>
+//     </div>`;
+// });
+
+
+
+ weekHistory.innerHTML += `
+<div class="historyCard">
     <div class="historyHeader">
-    📅 ${monthName} Week ${index+1}
-    <br>
-    ${w.start.getDate()} ${w.start.toLocaleString('default',{month:'short'})}
-    -
-    ${w.end.getDate()} ${w.end.toLocaleString('default',{month:'short'})}
-    <br><br>
-    ${rate}%
+        📅 ${monthName} Week ${index + 1}
+        <br>
+        ${w.start.getDate()} ${w.start.toLocaleString('default', { month: 'short' })}
+        -
+        ${w.end.getDate()} ${w.end.toLocaleString('default', { month: 'short' })}
+
+        <br><br>
+
+        ⏱ Total Allocated
+        <br>
+        ${minutesToTime(w.alloc)}
+
+        <br><br>
+
+        ✅ Total Achieved
+        <br>
+        ${minutesToTime(w.ach)}
+
+        <br><br>
+
+        📊 ${rate}%
     </div>
-    </div>`;
-});
+</div>`;
 
-//  weekHistory.innerHTML += `
-// <div class="historyCard">
-// <div class="historyHeader">
-// 📅 ${monthName} Week ${index+1}
-// <br>
-// ${w.start.getDate()} ${w.start.toLocaleString('default',{month:'short'})}
-// -
-// ${w.end.getDate()} ${w.end.toLocaleString('default',{month:'short'})}
 
-// <br><br>
-
-// ⏱ Total Hours
-// <br>
-// ${minutesToTime(w.alloc)}
-
-// <br><br>
-
-// ✅ Achieved Hours
-// <br>
-// ${minutesToTime(w.ach)}
-
-// <br><br>
-
-// ${rate}%
-// </div>
-// </div>`;
 
 for(let m=1;m<=12;m++){
  let target=new Date();
