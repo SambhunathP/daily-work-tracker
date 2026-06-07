@@ -123,10 +123,26 @@ achieved:i[2].value.trim() || ""
 });
 });
 
+// await set(
+// ref(db,'workTracker/'+today),
+// {locked:true,data:data}
+// );
+
 await set(
-ref(db,'workTracker/'+today),
-{locked:true,data:data}
+    ref(db, 'workTracker/' + today),
+    {
+        locked: true,
+        data: data
+    }
 );
+
+await loadToday();
+await loadHistory();
+
+
+ 
+
+ 
 
 lockInputs();
 
@@ -217,17 +233,30 @@ let store=await getStore();
 
 historyTables.innerHTML='';
 
-Object.keys(store)
+
+
+ Object.keys(store)
 .sort()
 .reverse()
+.filter(date => date !== today)
 .slice(0,8)
-.forEach(date=>{
+.forEach(date => {
 
-if(date===today) return;
+    let alloc = 0;
+    let ach = 0;
+    let rows = '';
 
-let alloc=0;
-let ach=0;
-let rows='';
+// Object.keys(store)
+// .sort()
+// .reverse()
+// .slice(0,8)
+// .forEach(date=>{
+
+// if(date===today) return;
+
+// let alloc=0;
+// let ach=0;
+// let rows='';
 
 // store[date].data.forEach(r=>{
 
