@@ -38,6 +38,23 @@ nowLocal.getFullYear() + '-' +
 String(nowLocal.getMonth()+1).padStart(2,'0') + '-' +
 String(nowLocal.getDate()).padStart(2,'0');
 
+async function createZeroRecordForToday() {
+
+    const snapshot = await get(ref(db, 'workTracker/' + today));
+
+    if (!snapshot.exists()) {
+        await set(ref(db, 'workTracker/' + today), {
+            locked: false,
+            data: [{
+                subject: 'No Work',
+                given: '00:00',
+                achieved: '00:00'
+            }]
+        });
+    }
+}
+
+
 function addRow(){
 
 const tr=document.createElement('tr');
@@ -114,14 +131,36 @@ return;
 let data=[];
 
 document.querySelectorAll('#rows tr').forEach(r=>{
+
 let i=r.querySelectorAll('input');
 
+const subject=i[0].value.trim();
+const given=i[1].value.trim();
+const achieved=i[2].value.trim();
+
+if(
+subject==='No Work' &&
+given==='00:00' &&
+achieved==='00:00'
+){
+return;
+}
+
 data.push({
-subject:i[0].value,
-given:i[1].value.trim() || "",
-achieved:i[2].value.trim() || ""
+subject,
+given,
+achieved
 });
+
 });
+
+if(data.length===0){
+data.push({
+subject:'No Work',
+given:'00:00',
+achieved:'00:00'
+});
+}
 
 // await set(
 // ref(db,'workTracker/'+today),
@@ -552,10 +591,10 @@ ${remark}
 }
 
 (async ()=>{
+await createZeroRecordForToday();
 await loadToday();
 if(rows.children.length===0){addRow();}
 await loadHistory();
-
 await generateMonthReports();
 })();
 
