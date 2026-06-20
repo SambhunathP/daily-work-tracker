@@ -1,346 +1,495 @@
-body{background:#0f0f0f;color:#fff;font-family:Arial,sans-serif;max-width:1200px;margin:auto;padding:20px}
-.card{background:#1b1b1b;border:1px solid #333;border-radius:12px;padding:15px;margin-bottom:18px}
-h1,h2,h3{text-align:center}
-#clock{text-align:center;font-size:18px}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #444;padding:10px;text-align:center}
-th{background:#222}
-input{width:100%;box-sizing:border-box;padding:8px;background:#111;color:#fff;border:1px solid #555}
-button{background:#2563eb;color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer}
-.progressBox{width:100%;height:24px;background:#333;border-radius:12px;overflow:hidden;margin-top:15px}
-#progressBar{height:100%;width:0%;background:#22c55e}
-.status{text-align:center;font-weight:bold;margin-top:10px}
-
-#historyTables{
-display:flex;
-flex-wrap:wrap;
-gap:12px;
-align-items:flex-start;
+body {
+    background: #0f0f0f;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px
 }
 
-#weekHistory,#monthHistory{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:12px;
+.card {
+    background: #1b1b1b;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 18px
 }
 
-.historyCard{
-flex:1 1 220px;
-max-width:250px;
-min-height:auto;
-height:auto;
+h1,
+h2,
+h3 {
+    text-align: center
 }
 
-.historyHeader{
-background:#2563eb;
-padding:15px;
-border-radius:10px;
-cursor:pointer;
-text-align:center;
-font-weight:bold;
+#clock {
+    text-align: center;
+    font-size: 18px
 }
 
-.historyHeader:hover{
-background:#1d4ed8;
-}
-
-.historyContent{
-display:none;
-margin-top:10px;
-}
-
-
-
-
-
-
-
- @media (max-width:768px){
-#historyTables{grid-template-columns:1fr;}
-
-
-body{
-    padding:10px;
-}
-
-.card{
-    padding:10px;
-    margin-bottom:12px;
-}
-
-h1{
-    font-size:24px;
-}
-
-h2{
-    font-size:20px;
-}
-
-h3{
-    font-size:18px;
-}
-
-#clock{
-    font-size:14px;
-}
-
-table{
-    font-size:12px;
-    display:block;
-    overflow-x:auto;
-    white-space:nowrap;
+table {
+    width: 100%;
+    border-collapse: collapse
 }
 
 th,
-td{
-    padding:6px;
+td {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: center
 }
 
-input{
-    font-size:14px;
-    padding:6px;
+th {
+    background: #222
 }
 
-button{
-    width:100%;
-    margin-top:10px;
-    font-size:16px;
+input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #555
 }
 
-.historyCard{
-    width:100%;
+button {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer
 }
 
-.historyHeader{
-    padding:12px;
-    font-size:14px;
+.progressBox {
+    width: 100%;
+    height: 24px;
+    background: #333;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 15px
 }
 
-.progressBox{
-    height:20px;
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: #22c55e
 }
 
-#allocated,
-#achieved,
-#rate,
-#todayRemark,
-#wAlloc,
-#wAch,
-#wRate,
-#weekRemark{
-    font-size:13px;
+.status {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px
 }
 
-.status{
-    font-size:14px;
-}
-}
-
-#weekHistory,#monthHistory{display:flex;flex-wrap:wrap;gap:12px}
-.monthCard{width:320px}
-@media (max-width:768px){
-.monthCard{width:100%}
+#historyTables {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
 }
 
-.monthPremium{
-background:linear-gradient(135deg,#1e293b,#0f172a);
-border:1px solid #3b82f6;
-border-radius:16px;
-padding:18px;
-width:280px;
-box-shadow:0 4px 12px rgba(0,0,0,.3);
+#weekHistory,
+#monthHistory {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
 }
-.monthTitle{
-text-align:center;
-font-size:18px;
-font-weight:bold;
-margin-bottom:12px;
+
+.historyCard {
+    flex: 1 1 220px;
+    max-width: 250px;
+    min-height: auto;
+    height: auto;
 }
-.monthMetric{
-background:#111827;
-border-radius:10px;
-padding:10px;
-margin:8px 0;
-text-align:center;
+
+.historyHeader {
+    background: #2563eb;
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
 }
-.monthMetric label{
-display:block;
-font-size:12px;
-opacity:.8;
+
+.historyHeader:hover {
+    background: #1d4ed8;
 }
-.monthMetric span{
-font-size:18px;
-font-weight:bold;
+
+.historyContent {
+    display: none;
+    margin-top: 10px;
 }
-.monthRemark{
-margin-top:12px;
-text-align:center;
-font-size:18px;
-font-weight:bold;
+
+
+
+
+
+
+
+@media (max-width:768px) {
+    #historyTables {
+        grid-template-columns: 1fr;
+    }
+
+
+    body {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    #clock {
+        font-size: 14px;
+    }
+
+    table {
+        font-size: 12px;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    th,
+    td {
+        padding: 6px;
+    }
+
+    input {
+        font-size: 14px;
+        padding: 6px;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 10px;
+        font-size: 16px;
+    }
+
+    .historyCard {
+        width: 100%;
+    }
+
+    .historyHeader {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .progressBox {
+        height: 20px;
+    }
+
+    #allocated,
+    #achieved,
+    #rate,
+    #todayRemark,
+    #wAlloc,
+    #wAch,
+    #wRate,
+    #weekRemark {
+        font-size: 13px;
+    }
+
+    .status {
+        font-size: 14px;
+    }
+}
+
+#weekHistory,
+#monthHistory {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px
+}
+
+.monthCard {
+    width: 320px
+}
+
+@media (max-width:768px) {
+    .monthCard {
+        width: 100%
+    }
+}
+
+.monthPremium {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid #3b82f6;
+    border-radius: 16px;
+    padding: 18px;
+    width: 280px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+}
+
+.monthTitle {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.monthMetric {
+    background: #111827;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 8px 0;
+    text-align: center;
+}
+
+.monthMetric label {
+    display: block;
+    font-size: 12px;
+    opacity: .8;
+}
+
+.monthMetric span {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.monthRemark {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 /* RESPONSIVE ENHANCEMENTS */
-.actionButtons{display:flex;gap:10px;flex-wrap:wrap}
-.actionButtons button{flex:1;min-width:140px}
-
-#historyTables,#weekHistory,#monthHistory{
-display:grid !important;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:14px;
+.actionButtons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap
 }
 
-.historyCard,.monthPremium{
-width:100% !important;
-max-width:none !important;
-box-sizing:border-box;
+.actionButtons button {
+    flex: 1;
+    min-width: 140px
 }
 
-.monthPremium{
-min-height:260px;
+#historyTables,
+#weekHistory,
+#monthHistory {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
 }
 
-table{
-width:100%;
+.historyCard,
+.monthPremium {
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
 }
 
-input{
-min-width:80px;
-}
-.subject{
-min-width:140px;
+.monthPremium {
+    min-height: 260px;
 }
 
-@media (max-width:768px){
-
-body{
-padding:8px !important;
+table {
+    width: 100%;
 }
 
-.card{
-padding:10px !important;
+input {
+    min-width: 80px;
 }
 
-h1{font-size:22px}
-h2{font-size:18px}
-h3{font-size:16px}
-
-#historyTables,#weekHistory,#monthHistory{
-grid-template-columns:1fr !important;
+.subject {
+    min-width: 140px;
 }
 
-button{
-width:100%;
+@media (max-width:768px) {
+
+    body {
+        padding: 8px !important;
+    }
+
+    .card {
+        padding: 10px !important;
+    }
+
+    h1 {
+        font-size: 22px
+    }
+
+    h2 {
+        font-size: 18px
+    }
+
+    h3 {
+        font-size: 16px
+    }
+
+    #historyTables,
+    #weekHistory,
+    #monthHistory {
+        grid-template-columns: 1fr !important;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .historyHeader {
+        font-size: 14px;
+    }
+
+    .monthTitle {
+        font-size: 16px;
+    }
+
+    .monthMetric span {
+        font-size: 16px;
+    }
 }
 
-table{
-display:block;
-overflow-x:auto;
-white-space:nowrap;
+body {
+    max-width: 1600px !important;
+    width: 95% !important;
+    margin: auto !important;
 }
 
-.historyHeader{
-font-size:14px;
+#historyTables {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
 }
 
-.monthTitle{
-font-size:16px;
+#weekHistory {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
 }
 
-.monthMetric span{
-font-size:16px;
-}
-}
-
-body{max-width:1600px !important;width:95% !important;margin:auto !important;}
-
-#historyTables{
-display:grid !important;
-grid-template-columns:repeat(4,1fr) !important;
-gap:16px !important;
+#monthHistory {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
 }
 
-#weekHistory{
-display:grid !important;
-grid-template-columns:repeat(4,1fr) !important;
-gap:16px !important;
+.historyCard,
+.monthPremium {
+    max-width: none !important;
+    width: 100% !important;
+    transition: .3s;
+    box-sizing: border-box;
 }
 
-#monthHistory{
-display:grid !important;
-grid-template-columns:repeat(3,1fr) !important;
-gap:16px !important;
+.historyCard:hover,
+.monthPremium:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, .25);
 }
 
-.historyCard,.monthPremium{
-max-width:none !important;
-width:100% !important;
-transition:.3s;
-box-sizing:border-box;
+@media (max-width:1200px) {
+
+    #historyTables,
+    #weekHistory {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    #monthHistory {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
 }
 
-.historyCard:hover,.monthPremium:hover{
-transform:translateY(-4px);
-box-shadow:0 10px 25px rgba(37,99,235,.25);
+@media (max-width:768px) {
+
+    #historyTables,
+    #weekHistory,
+    #monthHistory {
+        grid-template-columns: 1fr !important;
+    }
+
+    body {
+        width: 100% !important;
+    }
 }
 
-@media (max-width:1200px){
-#historyTables,#weekHistory{
-grid-template-columns:repeat(3,1fr) !important;
-}
-#monthHistory{
-grid-template-columns:repeat(2,1fr) !important;
-}
+#historyDetailsWrapper {
+    width: 100%;
+    overflow-x: auto;
 }
 
-@media (max-width:768px){
-#historyTables,#weekHistory,#monthHistory{
-grid-template-columns:1fr !important;
-}
-body{width:100% !important;}
+#historyDetails {
+    width: 100%;
 }
 
-#historyDetailsWrapper{width:100%;overflow-x:auto;}
-#historyDetails{width:100%;}
-#historyDetails table{width:100%;min-width:600px;border-collapse:collapse;}
-@media (max-width:768px){
-#historyDetailsWrapper{width:100%;overflow-x:auto;}
-#historyDetails table{min-width:600px;}
-.historyCard,.monthPremium{width:100%!important;max-width:100%!important;}
+#historyDetails table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+}
+
+@media (max-width:768px) {
+    #historyDetailsWrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #historyDetails table {
+        min-width: 600px;
+    }
+
+    .historyCard,
+    .monthPremium {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 }
 
 
 /* MOBILE FIX FOR PREVIOUS DATE TABLE */
-@media (max-width:768px){
+@media (max-width:768px) {
 
-#historyDetails{
-width:100% !important;
-overflow:visible !important;
-}
+    #historyDetails {
+        width: 100% !important;
+        overflow: visible !important;
+    }
 
-#historyDetails table{
-width:100% !important;
-min-width:100% !important;
-display:table !important;
-table-layout:fixed !important;
-white-space:normal !important;
-font-size:11px !important;
-}
+    #historyDetails table {
+        width: 100% !important;
+        min-width: 100% !important;
+        display: table !important;
+        table-layout: fixed !important;
+        white-space: normal !important;
+        font-size: 11px !important;
+    }
 
-#historyDetails th,
-#historyDetails td{
-padding:4px !important;
-word-break:break-word !important;
-white-space:normal !important;
-}
+    #historyDetails th,
+    #historyDetails td {
+        padding: 4px !important;
+        word-break: break-word !important;
+        white-space: normal !important;
+    }
 
-#historyTables{
-display:grid !important;
-grid-template-columns:1fr !important;
-}
+    #historyTables {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+    }
 
-.historyCard{
-width:100% !important;
-max-width:100% !important;
-}
+    .historyCard {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 
 }
