@@ -2,315 +2,315 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/fireba
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
 
 const firebaseConfig = {
- apiKey: "AIzaSyDcvJNa7HeG-FlZZkQJjjZaeefFyum6o9k",
- authDomain: "daily-work-tracker-feb29.firebaseapp.com",
- databaseURL: "https://daily-work-tracker-feb29-default-rtdb.firebaseio.com",
- projectId: "daily-work-tracker-feb29",
- storageBucket: "daily-work-tracker-feb29.firebasestorage.app",
- messagingSenderId: "637229671068",
- appId: "1:637229671068:web:45d226b53db93950adc359"
+    apiKey: "AIzaSyDcvJNa7HeG-FlZZkQJjjZaeefFyum6o9k",
+    authDomain: "daily-work-tracker-feb29.firebaseapp.com",
+    databaseURL: "https://daily-work-tracker-feb29-default-rtdb.firebaseio.com",
+    projectId: "daily-work-tracker-feb29",
+    storageBucket: "daily-work-tracker-feb29.firebasestorage.app",
+    messagingSenderId: "637229671068",
+    appId: "1:637229671068:web:45d226b53db93950adc359"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-function timeToMinutes(time){
-    if(!time) return 0;
-    const parts=(time+'').split(':');
-    let h=parseInt(parts[0])||0;
-    let m=parseInt(parts[1])||0;
-    h=Math.min(h,12);
-    m=Math.min(m,59);
-    return h*60+m;
+function timeToMinutes(time) {
+    if (!time) return 0;
+    const parts = (time + '').split(':');
+    let h = parseInt(parts[0]) || 0;
+    let m = parseInt(parts[1]) || 0;
+    h = Math.min(h, 12);
+    m = Math.min(m, 59);
+    return h * 60 + m;
 }
 
-function minutesToTime(totalMinutes){
-    const h=Math.floor(totalMinutes/60);
-    const m=totalMinutes%60;
-    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+function minutesToTime(totalMinutes) {
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
 }
 
 
 
 const nowLocal = new Date();
 const today =
-nowLocal.getFullYear() + '-' +
-String(nowLocal.getMonth()+1).padStart(2,'0') + '-' +
-String(nowLocal.getDate()).padStart(2,'0');
+    nowLocal.getFullYear() + '-' +
+    String(nowLocal.getMonth() + 1).padStart(2, '0') + '-' +
+    String(nowLocal.getDate()).padStart(2, '0');
 
-function addRow(){
+function addRow() {
 
-const tr=document.createElement('tr');
-tr.innerHTML=`
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
 <td><input class="subject"></td>
 <td><input type="text" class="given" placeholder="H:MM"></td>
 <td><input type="text" class="done" placeholder="H:MM"></td>
 <td><button type="button" onclick="this.closest('tr').remove();calc();">❌</button></td>
 `;
-document.getElementById('rows').appendChild(tr);
+    document.getElementById('rows').appendChild(tr);
 }
-window.addRow=addRow;
+window.addRow = addRow;
 
-function tick(){
-clock.innerText=new Date().toLocaleString();
+function tick() {
+    clock.innerText = new Date().toLocaleString();
 }
-setInterval(tick,1000);
+setInterval(tick, 1000);
 tick();
 
-async function getStore(){
-const snapshot = await get(ref(db,'workTracker'));
-return snapshot.exists() ? snapshot.val() : {};
+async function getStore() {
+    const snapshot = await get(ref(db, 'workTracker'));
+    return snapshot.exists() ? snapshot.val() : {};
 }
 
-function calc(){
+function calc() {
 
-let g=0,a=0;
+    let g = 0, a = 0;
 
-document.querySelectorAll('.given').forEach(x=>g+=timeToMinutes(x.value));
-document.querySelectorAll('.done').forEach(x=>a+=timeToMinutes(x.value));
+    document.querySelectorAll('.given').forEach(x => g += timeToMinutes(x.value));
+    document.querySelectorAll('.done').forEach(x => a += timeToMinutes(x.value));
 
-allocated.innerText=minutesToTime(g);
-achieved.innerText=minutesToTime(a);
+    allocated.innerText = minutesToTime(g);
+    achieved.innerText = minutesToTime(a);
 
-let success=g?((a/g)*100).toFixed(2):0;
+    let success = g ? ((a / g) * 100).toFixed(2) : 0;
 
-rate.innerText=success+'%';
+    rate.innerText = success + '%';
 
-if(success>=85){
-todayRemark.innerText='🟢 Excellent';
-}else if(success>=70){
-todayRemark.innerText='🟡 Good';
-}else{
-todayRemark.innerText='🔴 Needs Improvement';
+    if (success >= 85) {
+        todayRemark.innerText = '🟢 Excellent';
+    } else if (success >= 70) {
+        todayRemark.innerText = '🟡 Good';
+    } else {
+        todayRemark.innerText = '🔴 Needs Improvement';
+    }
 }
-}
 
-document.addEventListener('input',calc);
+document.addEventListener('input', calc);
 
-function lockInputs(){
+function lockInputs() {
 
-    document.querySelectorAll('input').forEach(i=>{
+    document.querySelectorAll('input').forEach(i => {
         i.disabled = true;
     });
 
-    document.querySelectorAll('button').forEach(btn=>{
+    document.querySelectorAll('button').forEach(btn => {
 
-        if(btn.innerText.includes('❌')){
+        if (btn.innerText.includes('❌')) {
             btn.style.display = 'none';
         }
 
     });
 
 }
-async function saveDay(){
+async function saveDay() {
 
-let store=await getStore();
+    let store = await getStore();
 
-if(store[today] && store[today].locked){
-alert('Already saved.');
-return;
-}
-
-let data=[];
-
-document.querySelectorAll('#rows tr').forEach(r=>{
-let i=r.querySelectorAll('input');
-
-data.push({
-subject:i[0].value,
-given:i[1].value.trim() || "",
-achieved:i[2].value.trim() || ""
-});
-});
-
-// await set(
-// ref(db,'workTracker/'+today),
-// {locked:true,data:data}
-// );
-
-await set(
-    ref(db, 'workTracker/' + today),
-    {
-        locked: true,
-        data: data
+    if (store[today] && store[today].locked) {
+        alert('Already saved.');
+        return;
     }
-);
 
-await loadToday();
-await loadHistory();
+    let data = [];
+
+    document.querySelectorAll('#rows tr').forEach(r => {
+        let i = r.querySelectorAll('input');
+
+        data.push({
+            subject: i[0].value,
+            given: i[1].value.trim() || "",
+            achieved: i[2].value.trim() || ""
+        });
+    });
+
+    // await set(
+    // ref(db,'workTracker/'+today),
+    // {locked:true,data:data}
+    // );
+
+    await set(
+        ref(db, 'workTracker/' + today),
+        {
+            locked: true,
+            data: data
+        }
+    );
+
+    await loadToday();
+    await loadHistory();
 
 
- 
 
- 
 
-lockInputs();
 
-document.querySelectorAll('th').forEach(th=>{
-    if(th.innerText.trim()==='Action'){
-        th.style.display='none';
-    }
-});
 
-document.querySelectorAll('#rows tr').forEach(row=>{
-    row.lastElementChild.style.display='none';
-});
+    lockInputs();
 
-saveStatus.innerText='✅ Saved & Locked';
+    document.querySelectorAll('th').forEach(th => {
+        if (th.innerText.trim() === 'Action') {
+            th.style.display = 'none';
+        }
+    });
 
-await loadHistory();
+    document.querySelectorAll('#rows tr').forEach(row => {
+        row.lastElementChild.style.display = 'none';
+    });
 
-await generateMonthReports();
+    saveStatus.innerText = '✅ Saved & Locked';
+
+    await loadHistory();
+
+    await generateMonthReports();
 }
 
 window.saveDay = saveDay;
 
-async function saveAllocatedHour(){
+async function saveAllocatedHour() {
 
-let data=[];
+    let data = [];
 
-document.querySelectorAll('#rows tr').forEach(r=>{
-let i=r.querySelectorAll('input');
-data.push({
-subject:i[0].value,
-given:i[1].value.trim()||"",
-achieved:""
-});
-});
-
-await set(ref(db,'workTracker/'+today),{
-locked:false,
-data:data
-});
-
-saveStatus.innerText='⏱️ Plan Saved';
-}
-
-window.saveAllocatedHour=saveAllocatedHour;
-
-
-
-async function loadToday(){
-
-let store = await getStore();
-
-if(!store[today]) return;
-
-document.getElementById('rows').innerHTML = '';
-
-store[today].data.forEach(r=>{
-
-    addRow();
-
-    const lastRow =
-    document.querySelector('#rows tr:last-child');
-
-    const inputs =
-    lastRow.querySelectorAll('input');
-
-    inputs[0].value = r.subject || '';
-    inputs[1].value = r.given || '';
-    inputs[2].value = r.achieved || '';
-
-});
-
-if(store[today].locked){
-
-    lockInputs();
-
-    saveStatus.innerText='🔒 Saved Record';
-
-    document.querySelectorAll('th').forEach(th=>{
-        if(th.innerText.trim()==='Action'){
-            th.style.display='none';
-        }
+    document.querySelectorAll('#rows tr').forEach(r => {
+        let i = r.querySelectorAll('input');
+        data.push({
+            subject: i[0].value,
+            given: i[1].value.trim() || "",
+            achieved: ""
+        });
     });
 
-    document.querySelectorAll('#rows tr').forEach(row=>{
-        row.lastElementChild.style.display='none';
+    await set(ref(db, 'workTracker/' + today), {
+        locked: false,
+        data: data
     });
 
+    saveStatus.innerText = '⏱️ Plan Saved';
 }
 
-calc();
+window.saveAllocatedHour = saveAllocatedHour;
+
+
+
+async function loadToday() {
+
+    let store = await getStore();
+
+    if (!store[today]) return;
+
+    document.getElementById('rows').innerHTML = '';
+
+    store[today].data.forEach(r => {
+
+        addRow();
+
+        const lastRow =
+            document.querySelector('#rows tr:last-child');
+
+        const inputs =
+            lastRow.querySelectorAll('input');
+
+        inputs[0].value = r.subject || '';
+        inputs[1].value = r.given || '';
+        inputs[2].value = r.achieved || '';
+
+    });
+
+    if (store[today].locked) {
+
+        lockInputs();
+
+        saveStatus.innerText = '🔒 Saved Record';
+
+        document.querySelectorAll('th').forEach(th => {
+            if (th.innerText.trim() === 'Action') {
+                th.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('#rows tr').forEach(row => {
+            row.lastElementChild.style.display = 'none';
+        });
+
+    }
+
+    calc();
 }
 
-function toggleHistory(date){
+function toggleHistory(date) {
 
-const wrapper=document.getElementById('historyDetailsWrapper');
-const panel=document.getElementById('historyDetails');
-const selected=document.getElementById(`detail-${date}`);
+    const wrapper = document.getElementById('historyDetailsWrapper');
+    const panel = document.getElementById('historyDetails');
+    const selected = document.getElementById(`detail-${date}`);
 
-if(selected){
-wrapper.style.display='block';
-panel.innerHTML=selected.innerHTML;
-}else{
-wrapper.style.display='none';
-panel.innerHTML='';
-}
+    if (selected) {
+        wrapper.style.display = 'block';
+        panel.innerHTML = selected.innerHTML;
+    } else {
+        wrapper.style.display = 'none';
+        panel.innerHTML = '';
+    }
 
 }
 window.toggleHistory = toggleHistory;
 
-async function loadHistory(){
+async function loadHistory() {
 
-let store=await getStore();
+    let store = await getStore();
 
-historyTables.innerHTML='';
+    historyTables.innerHTML = '';
 
 
 
- Object.keys(store)
-.sort()
-.reverse()
-.filter(date => date !== today)
-.slice(0,8)
-.forEach(date => {
+    Object.keys(store)
+        .sort()
+        .reverse()
+        .filter(date => date !== today)
+        .slice(0, 8)
+        .forEach(date => {
 
-    let alloc = 0;
-    let ach = 0;
-    let rows = '';
+            let alloc = 0;
+            let ach = 0;
+            let rows = '';
 
-// Object.keys(store)
-// .sort()
-// .reverse()
-// .slice(0,8)
-// .forEach(date=>{
+            // Object.keys(store)
+            // .sort()
+            // .reverse()
+            // .slice(0,8)
+            // .forEach(date=>{
 
-// if(date===today) return;
+            // if(date===today) return;
 
-// let alloc=0;
-// let ach=0;
-// let rows='';
+            // let alloc=0;
+            // let ach=0;
+            // let rows='';
 
-// store[date].data.forEach(r=>{
+            // store[date].data.forEach(r=>{
 
-// alloc += timeToMinutes(r.given);
-// ach += timeToMinutes(r.achieved);
+            // alloc += timeToMinutes(r.given);
+            // ach += timeToMinutes(r.achieved);
 
-// rows += `
-// <tr>
-// <td>${r.subject}</td>
-// <td>${r.given}</td>
-// <td>${r.achieved}</td>
-// </tr>`;
-// });
+            // rows += `
+            // <tr>
+            // <td>${r.subject}</td>
+            // <td>${r.given}</td>
+            // <td>${r.achieved}</td>
+            // </tr>`;
+            // });
 
-store[date].data.forEach(r=>{
+            store[date].data.forEach(r => {
 
-alloc += timeToMinutes(r.given);
-ach += timeToMinutes(r.achieved);
+                alloc += timeToMinutes(r.given);
+                ach += timeToMinutes(r.achieved);
 
-rows += `
+                rows += `
 <tr>
 <td>${r.subject}</td>
 <td>${r.given}</td>
 <td>${r.achieved}</td>
 </tr>`;
-});
+            });
 
-// Total Row
-rows += `
+            // Total Row
+            rows += `
 <tr style="font-weight:bold;background:rgba(255,255,255,0.08);">
 <td>Total</td>
 <td>${minutesToTime(alloc)}</td>
@@ -318,19 +318,19 @@ rows += `
 </tr>`;
 
 
- 
 
-let success=alloc?((ach/alloc)*100).toFixed(2):0;
 
-let remark='🔴 Needs Improvement';
+            let success = alloc ? ((ach / alloc) * 100).toFixed(2) : 0;
 
-if(success>=85){
-remark='🟢 Excellent';
-}else if(success>=70){
-remark='🟡 Good';
-}
+            let remark = '🔴 Needs Improvement';
 
-historyTables.innerHTML += `
+            if (success >= 85) {
+                remark = '🟢 Excellent';
+            } else if (success >= 70) {
+                remark = '🟡 Good';
+            }
+
+            historyTables.innerHTML += `
 <div class="historyCard">
 
 <div class="historyHeader"
@@ -357,150 +357,179 @@ ${rows}
 
 </div>
 </div>`;
-});
+        });
 }
 
-async function generateWeeklyReport(){
+async function generateWeeklyReport() {
 
-const now=new Date();
+    const now = new Date();
 
-let store=await getStore();
-let alloc=0;
-let ach=0;
+    let store = await getStore();
+    let alloc = 0;
+    let ach = 0;
 
-for(let i=7;i>=1;i--){
+    for (let i = 7; i >= 1; i--) {
 
-let d=new Date(now);
-d.setDate(now.getDate()-i);
+        let d = new Date(now);
+        d.setDate(now.getDate() - i);
 
-let key =
-d.getFullYear() + '-' +
-String(d.getMonth()+1).padStart(2,'0') + '-' +
-String(d.getDate()).padStart(2,'0');
+        let key =
+            d.getFullYear() + '-' +
+            String(d.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d.getDate()).padStart(2, '0');
 
-if(store[key]){
-store[key].data.forEach(r=>{
-alloc += timeToMinutes(r.given);
-ach += timeToMinutes(r.achieved);
-});
-}
-}
+        if (store[key]) {
+            store[key].data.forEach(r => {
+                alloc += timeToMinutes(r.given);
+                ach += timeToMinutes(r.achieved);
+            });
+        }
+    }
 
-let success=alloc?((ach/alloc)*100).toFixed(2):0;
+    let success = alloc ? ((ach / alloc) * 100).toFixed(2) : 0;
 
-wAlloc.innerText=minutesToTime(alloc);
-wAch.innerText=minutesToTime(ach);
-wRate.innerText=success+'%';
+    wAlloc.innerText = minutesToTime(alloc);
+    wAch.innerText = minutesToTime(ach);
+    wRate.innerText = success + '%';
 
-progressBar.style.width=success+'%';
+    progressBar.style.width = success + '%';
 
-if(success>=85){
-weekStatus.innerText='🟢 Excellent';
-weekRemark.innerText='🟢 Excellent';
-}else if(success>=70){
-weekStatus.innerText='🟡 Good';
-weekRemark.innerText='🟡 Good';
-}else{
-weekStatus.innerText='🔴 Needs Improvement';
-weekRemark.innerText='🔴 Needs Improvement';
-}
+    if (success >= 85) {
+        weekStatus.innerText = '🟢 Excellent';
+        weekRemark.innerText = '🟢 Excellent';
+    } else if (success >= 70) {
+        weekStatus.innerText = '🟡 Good';
+        weekRemark.innerText = '🟡 Good';
+    } else {
+        weekStatus.innerText = '🔴 Needs Improvement';
+        weekRemark.innerText = '🔴 Needs Improvement';
+    }
 
-weeklyReport.style.display='block';
-}
-
-
-async function generateMonthReports(){
-let store=await getStore();
-
-weekHistory.innerHTML='';
-monthHistory.innerHTML='';
-
-const now=new Date();
-const month=now.getMonth();
-const year=now.getFullYear();
-
-
-const monthName = new Date(year,month,1).toLocaleString('default',{month:'long'});
-
-let calendarWeeks=[];
-let firstDate=new Date(year,month,1);
-let lastDate=new Date(year,month+1,0);
-
-let firstSunday=new Date(firstDate);
-while(firstSunday.getDay()!==0){
- firstSunday.setDate(firstSunday.getDate()-1);
+    weeklyReport.style.display = 'block';
 }
 
-let weekStart=new Date(firstSunday);
 
-while(weekStart<=lastDate){
- let weekEnd=new Date(weekStart);
- weekEnd.setDate(weekStart.getDate()+6);
+async function generateMonthReports() {
+    let store = await getStore();
 
- calendarWeeks.push({
-   start:new Date(weekStart),
-   end:new Date(weekEnd),
-   alloc:0,
-   ach:0
- });
+    weekHistory.innerHTML = '';
+    monthHistory.innerHTML = '';
 
- weekStart.setDate(weekStart.getDate()+7);
-}
-
-Object.keys(store).forEach(date=>{
- let d=new Date(date);
-
- // allow cross-month Sunday-Saturday weeks
-
- calendarWeeks.forEach(w=>{
-   if(d>=w.start && d<=w.end){
-      store[date].data.forEach(r=>{
-        w.alloc += timeToMinutes(r.given);
-        w.ach += timeToMinutes(r.achieved);
-      });
-   }
- });
-});
-
-let weekCount = 0;
-
-calendarWeeks.forEach((w,index)=>{
-
-    if(!w.alloc && !w.ach) return;
-
-    if(weekCount >= 4) return;
-
-    weekCount++;
-
-    let rate=w.alloc
-        ? ((w.ach/w.alloc)*100).toFixed(2)
-        : 0;
-
-//     weekHistory.innerHTML += `
-//     <div class="historyCard">
-//     <div class="historyHeader">
-//     📅 ${monthName} Week ${index+1}
-//     <br>
-//     ${w.start.getDate()} ${w.start.toLocaleString('default',{month:'short'})}
-//     -
-//     ${w.end.getDate()} ${w.end.toLocaleString('default',{month:'short'})}
-//     <br><br>
-//     ${rate}%
-//     </div>
-//     </div>`;
-// });
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
 
 
+    const monthName = new Date(year, month, 1).toLocaleString('default', { month: 'long' });
 
-weekHistory.innerHTML += `
+    let calendarWeeks = [];
+    let firstDate = new Date(year, month, 1);
+    let lastDate = new Date(year, month + 1, 0);
+
+    let firstSunday = new Date(firstDate);
+    while (firstSunday.getDay() !== 0) {
+        firstSunday.setDate(firstSunday.getDate() - 1);
+    }
+
+    let weekStart = new Date(firstSunday);
+
+    while (weekStart <= lastDate) {
+        let weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+
+        calendarWeeks.push({
+            start: new Date(weekStart),
+            end: new Date(weekEnd),
+            alloc: 0,
+            ach: 0
+        });
+
+        weekStart.setDate(weekStart.getDate() + 7);
+    }
+
+
+    Object.keys(store).forEach(date => {
+
+        // Parse YYYY-MM-DD safely
+        const [y, m, day] = date.split('-').map(Number);
+        const d = new Date(y, m - 1, day);
+
+        d.setHours(0, 0, 0, 0);
+
+        calendarWeeks.forEach(w => {
+
+            const start = new Date(w.start);
+            const end = new Date(w.end);
+
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
+
+            if (d >= start && d <= end) {
+
+                store[date].data.forEach(r => {
+
+                    w.alloc += timeToMinutes(r.given);
+                    w.ach += timeToMinutes(r.achieved);
+
+                });
+
+            }
+
+        });
+
+    });
+
+
+
+
+
+    let visibleWeeks = [];
+
+    calendarWeeks.forEach((w, index) => {
+
+        if (!w.alloc && !w.ach) return;
+
+        visibleWeeks.push({
+
+            start: new Date(w.start),
+            end: new Date(w.end),
+
+            alloc: w.alloc,
+            ach: w.ach,
+
+            label: `${monthName} Week ${index + 1}`
+
+        });
+
+    });
+
+    visibleWeeks.sort((a, b) => b.end - a.end);
+
+    visibleWeeks = visibleWeeks.slice(0, 4);
+
+    visibleWeeks.forEach(w => {
+
+        let rate = w.alloc
+            ? ((w.ach / w.alloc) * 100).toFixed(2)
+            : 0;
+
+        weekHistory.innerHTML += `
+
 <div class="historyCard">
+
 <div class="historyHeader">
 
-📅 ${monthName} Week ${index+1}
+📅 ${w.label}
+
 <br>
-${w.start.getDate()} ${w.start.toLocaleString('default',{month:'short'})}
+
+${w.start.getDate()}
+${w.start.toLocaleString('default', { month: 'short' })}
+
 -
-${w.end.getDate()} ${w.end.toLocaleString('default',{month:'short'})}
+
+${w.end.getDate()}
+${w.end.toLocaleString('default', { month: 'short' })}
 
 <br><br>
 
@@ -519,38 +548,43 @@ ${minutesToTime(w.ach)}
 📊 ${rate}%
 
 </div>
-</div>`;});
 
+</div>
 
+`;
 
-for(let m=1;m<=12;m++){
- let target=new Date();
- target.setMonth(target.getMonth()-m);
-
- let alloc=0, ach=0;
-
- Object.keys(store).forEach(date=>{
-  let d=new Date(date);
-  if(d.getMonth()===target.getMonth() && d.getFullYear()===target.getFullYear()){
-    store[date].data.forEach(r=>{
-      alloc+=timeToMinutes(r.given);
-      ach+=timeToMinutes(r.achieved);
     });
-  }
- });
 
- if(!alloc && !ach) continue;
 
- let success=alloc?((ach/alloc)*100).toFixed(2):0;
- let remark='🔴 Needs Improvement';
- if(success>=85) remark='🟢 Excellent';
- else if(success>=70) remark='🟡 Good';
 
- monthHistory.innerHTML += `
+    for (let m = 1; m <= 12; m++) {
+        let target = new Date();
+        target.setMonth(target.getMonth() - m);
+
+        let alloc = 0, ach = 0;
+
+        Object.keys(store).forEach(date => {
+            let d = new Date(date);
+            if (d.getMonth() === target.getMonth() && d.getFullYear() === target.getFullYear()) {
+                store[date].data.forEach(r => {
+                    alloc += timeToMinutes(r.given);
+                    ach += timeToMinutes(r.achieved);
+                });
+            }
+        });
+
+        if (!alloc && !ach) continue;
+
+        let success = alloc ? ((ach / alloc) * 100).toFixed(2) : 0;
+        let remark = '🔴 Needs Improvement';
+        if (success >= 85) remark = '🟢 Excellent';
+        else if (success >= 70) remark = '🟡 Good';
+
+        monthHistory.innerHTML += `
 <div class="monthPremium">
 
 <div class="monthTitle">
-📆 ${target.toLocaleString('default',{month:'long'})} ${target.getFullYear()}
+📆 ${target.toLocaleString('default', { month: 'long' })} ${target.getFullYear()}
 </div>
 
 <div class="monthMetric">
@@ -573,31 +607,31 @@ ${remark}
 </div>
 
 </div>`;
-}
+    }
 }
 
-(async ()=>{
-await loadToday();
-if(rows.children.length===0){addRow();}
-await loadHistory();
+(async () => {
+    await loadToday();
+    if (rows.children.length === 0) { addRow(); }
+    await loadHistory();
 
-await generateMonthReports();
+    await generateMonthReports();
 })();
 
 
 
-document.addEventListener('input',(e)=>{
+document.addEventListener('input', (e) => {
 
-    if(
+    if (
         !e.target.classList.contains('given') &&
         !e.target.classList.contains('done')
-    ){
+    ) {
         return;
     }
 
-    let digits = e.target.value.replace(/\D/g,'');
+    let digits = e.target.value.replace(/\D/g, '');
 
-    if(digits === ''){
+    if (digits === '') {
         e.target.value = '';
         calc();
         return;
@@ -606,35 +640,35 @@ document.addEventListener('input',(e)=>{
     // Keep only last 4 digits
     digits = digits.slice(-4);
 
-    let padded = digits.padStart(4,'0');
+    let padded = digits.padStart(4, '0');
 
-    let hh = parseInt(padded.slice(0,2),10);
-    let mm = parseInt(padded.slice(2,4),10);
+    let hh = parseInt(padded.slice(0, 2), 10);
+    let mm = parseInt(padded.slice(2, 4), 10);
 
-    if(mm > 59) mm = 59;
-    if(hh > 12) hh = 12;
+    if (mm > 59) mm = 59;
+    if (hh > 12) hh = 12;
 
     e.target.value =
-        String(hh).padStart(2,'0') +
+        String(hh).padStart(2, '0') +
         ':' +
-        String(mm).padStart(2,'0');
+        String(mm).padStart(2, '0');
 
     calc();
 
 });
 
- document.addEventListener('input', (e) => {
+document.addEventListener('input', (e) => {
 
-  if(e.target.classList.contains('subject')){
+    if (e.target.classList.contains('subject')) {
 
-    let value = e.target.value;
+        let value = e.target.value;
 
-    if(value.length > 0){
-      e.target.value =
-      value.charAt(0).toUpperCase() +
-      value.slice(1);
+        if (value.length > 0) {
+            e.target.value =
+                value.charAt(0).toUpperCase() +
+                value.slice(1);
+        }
+
     }
-
-  }
 
 });
