@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily Work Tracker Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Work Tracker Pro</title>
 
 
 
@@ -13,78 +14,98 @@
 
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
-<div class="card">
-<h1>Daily Work Tracker</h1>
-<div id="clock"></div>
-</div>
+    <div class="card">
+        <h1>Daily Work Tracker</h1>
+        <div id="clock"></div>
+    </div>
 
-<div class="card">
-<h2>Today's Work</h2>
+    <div class="card">
+        <h2>Today's Work</h2>
 
-<table>
-<thead>
-<tr>
-<th>Subject</th>
-<th>Allocated Hours</th>
-<th>Achieved Hours</th><th>Action</th>
-</tr>
-</thead>
-<tbody id="rows"></tbody>
-</table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Allocated Hours</th>
+                    <th>Achieved Hours</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+        </table>
 
-<br>
+        <br>
 
-<div class="actionButtons"><button onclick="addRow()">➕ Add Subject</button><button onclick="saveAllocatedHour()">⏱️ Save Allocated Hour</button><button onclick="saveDay()">💾 Save Day</button></div>
-<div id="saveStatus" class="status"></div>
+        <div class="actionButtons">
 
-<br>
+            <button id="addBtn" onclick="addRow()">
+                ➕ Add Subject
+            </button>
 
-<table>
-<tr>
-<th>Total Allocated</th>
-<th>Total Achieved</th>
-<th>Success Rate</th>
-<th>Remark</th>
-</tr>
+            <button onclick="saveAllocatedHour()">
+                ⏱️ Save Allocated Hour
+            </button>
 
-<tr>
-<td id="allocated">0 hrs</td>
-<td id="achieved">0 hrs</td>
-<td id="rate">0%</td>
-<td id="todayRemark">🔴 Needs Improvement</td>
-</tr>
-</table>
+            <button onclick="saveDay()">
+                💾 Save Day
+            </button>
 
-</div>
+        </div>
+        <div id="saveStatus" class="status"></div>
 
+        <br>
 
+        <table>
+            <tr>
+                <th>Total Allocated</th>
+                <th>Total Achieved</th>
+                <th>Success Rate</th>
+                <th>Remark</th>
+            </tr>
 
-<h3 id="weekStatus"></h3>
-</div>
+            <tr>
+                <td id="allocated">0 hrs</td>
+                <td id="achieved">0 hrs</td>
+                <td id="rate">0%</td>
+                <td id="todayRemark">🔴 Needs Improvement</td>
+            </tr>
+        </table>
 
-<div class="card">
-<h2>📅 Previous Days History</h2>
-<div id="historyTables"></div><div id="historyDetailsWrapper" style="display:none"><div id="historyDetails" style="margin-top:15px"></div></div>
-</div>
-
-<div class="card">
-<h2>📊 Current Month Weekly Reports</h2>
-<div id="weekHistory"></div>
-</div>
-
-<div class="card">
-<h2>📆 Monthly Reports</h2>
-<div id="monthHistory"></div>
-</div>
+    </div>
 
 
 
+    <h3 id="weekStatus"></h3>
+    </div>
+
+    <div class="card">
+        <h2>📅 Previous Days History</h2>
+        <div id="historyTables"></div>
+        <div id="historyDetailsWrapper" style="display:none">
+            <div id="historyDetails" style="margin-top:15px"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📊 Current Month Weekly Reports</h2>
+        <div id="weekHistory"></div>
+    </div>
+
+    <div class="card">
+        <h2>📆 Monthly Reports</h2>
+        <div id="monthHistory"></div>
+    </div>
 
 
- 
+
+
+
+
 
     <script type="module" src="script.js"></script>
 </body>
+
 </html>
