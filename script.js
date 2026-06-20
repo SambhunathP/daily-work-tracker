@@ -40,14 +40,49 @@ const today =
 
 function addRow() {
 
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
-<td><input class="subject"></td>
+<td>
+    <select class="subject">
+   
+        <option value="">Select Subject</option>
+        <option value="Vocabulary">Vocabulary</option>
+        <option value="History">History</option>
+        <option value="Geography">Geography</option>
+        <option value="English">English</option>
+        <option value="Odia">Odia</option>
+        <option value="Polity">Polity</option>
+        <option value="Economic">Economic</option>
+        <option value="Mathematics">Mathematics</option>
+        <option value="Data Interpretation">Data Interpretation</option>
+        <option value="Environment">Environment</option>
+        <option value="Current Affairs">Current Affairs</option>
+        <option value="Art and Culture">Art and Culture</option>
+        <option value="Mock Tests">Mock Tests</option>
+            
+        
+    </select>
+</td>
 <td><input type="text" class="given" placeholder="H:MM"></td>
 <td><input type="text" class="done" placeholder="H:MM"></td>
-<td><button type="button" onclick="this.closest('tr').remove();calc();">❌</button></td>
+<td>
+<button type="button"
+onclick="
+this.closest('tr').remove();
+updateSubjectOptions();
+calc();
+">
+❌
+</button>
+</td>
 `;
     document.getElementById('rows').appendChild(tr);
+
+    const select = tr.querySelector('.subject');
+    select.addEventListener('change', updateSubjectOptions);
+
+    updateSubjectOptions();
 }
 window.addRow = addRow;
 
@@ -60,6 +95,50 @@ tick();
 async function getStore() {
     const snapshot = await get(ref(db, 'workTracker'));
     return snapshot.exists() ? snapshot.val() : {};
+}
+
+
+async function fillMissingDays() {
+
+    let store = await getStore();
+
+    const dates = Object.keys(store).sort();
+
+    if (dates.length === 0) return;
+
+    let current = new Date(dates[dates.length - 1]);
+    current.setDate(current.getDate() + 1);
+
+    let yesterday = new Date();
+    yesterday.setHours(0, 0, 0, 0);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    while (current <= yesterday) {
+
+        const key =
+            current.getFullYear() + '-' +
+            String(current.getMonth() + 1).padStart(2, '0') + '-' +
+            String(current.getDate()).padStart(2, '0');
+
+        if (!store[key]) {
+
+            await set(ref(db, 'workTracker/' + key), {
+
+                locked: true,
+
+                data: [{
+                    subject: 'No Work',
+                    given: '00:00',
+                    achieved: '00:00'
+                }]
+
+            });
+
+        }
+
+        current.setDate(current.getDate() + 1);
+
+    }
 }
 
 function calc() {
@@ -89,7 +168,7 @@ document.addEventListener('input', calc);
 
 function lockInputs() {
 
-    document.querySelectorAll('input').forEach(i => {
+    document.querySelectorAll('input,select').forEach(i => {
         i.disabled = true;
     });
 
@@ -114,14 +193,25 @@ async function saveDay() {
     let data = [];
 
     document.querySelectorAll('#rows tr').forEach(r => {
-        let i = r.querySelectorAll('input');
 
-        data.push({
-            subject: i[0].value,
-            given: i[1].value.trim() || "",
-            achieved: i[2].value.trim() || ""
-        });
+        const subject = r.querySelector('.subject').value;
+        const given = r.querySelector('.given').value.trim();
+        const achieved = r.querySelector('.done').value.trim();
+
+        if (subject) {
+            data.push({
+                subject,
+                given: given || "00:00",
+                achieved: achieved || "00:00"
+            });
+        }
+
     });
+
+    if (data.length === 0) {
+        alert("Please add at least one subject.");
+        return;
+    }
 
     // await set(
     // ref(db,'workTracker/'+today),
@@ -157,8 +247,9 @@ async function saveDay() {
     });
 
     saveStatus.innerText = '✅ Saved & Locked';
+    document.getElementById('addBtn').disabled = true;
 
-    await loadHistory();
+
 
     await generateMonthReports();
 }
@@ -167,16 +258,34 @@ window.saveDay = saveDay;
 
 async function saveAllocatedHour() {
 
+    let store = await getStore();
+
+    if (store[today]?.locked) {
+        alert("Day already locked.");
+        return;
+    }
+
     let data = [];
 
     document.querySelectorAll('#rows tr').forEach(r => {
-        let i = r.querySelectorAll('input');
-        data.push({
-            subject: i[0].value,
-            given: i[1].value.trim() || "",
-            achieved: ""
-        });
+
+        const subject = r.querySelector('.subject').value;
+        const given = r.querySelector('.given').value.trim();
+
+        if (subject) {
+            data.push({
+                subject,
+                given: given || "00:00",
+                achieved: "00:00"
+            });
+        }
+
     });
+
+    if (data.length === 0) {
+        alert("Please add at least one subject.");
+        return;
+    }
 
     await set(ref(db, 'workTracker/' + today), {
         locked: false,
@@ -184,6 +293,8 @@ async function saveAllocatedHour() {
     });
 
     saveStatus.innerText = '⏱️ Plan Saved';
+
+    document.getElementById('addBtn').disabled = true;
 }
 
 window.saveAllocatedHour = saveAllocatedHour;
@@ -205,12 +316,16 @@ async function loadToday() {
         const lastRow =
             document.querySelector('#rows tr:last-child');
 
-        const inputs =
-            lastRow.querySelectorAll('input');
+        lastRow.querySelector('.subject').value =
+            r.subject || '';
 
-        inputs[0].value = r.subject || '';
-        inputs[1].value = r.given || '';
-        inputs[2].value = r.achieved || '';
+        lastRow.querySelector('.given').value =
+            r.given || '';
+
+        lastRow.querySelector('.done').value =
+            r.achieved || '';
+
+        updateSubjectOptions();
 
     });
 
@@ -219,6 +334,8 @@ async function loadToday() {
         lockInputs();
 
         saveStatus.innerText = '🔒 Saved Record';
+
+        document.getElementById('addBtn').disabled = true;
 
         document.querySelectorAll('th').forEach(th => {
             if (th.innerText.trim() === 'Action') {
@@ -229,6 +346,22 @@ async function loadToday() {
         document.querySelectorAll('#rows tr').forEach(row => {
             row.lastElementChild.style.display = 'none';
         });
+
+    }
+    else {
+
+        // Planned state
+
+        document.getElementById('addBtn').disabled = true;
+
+        document.querySelectorAll('.subject,.given')
+            .forEach(x => x.disabled = true);
+
+        document.querySelectorAll('#rows tr').forEach(row => {
+            row.lastElementChild.style.display = 'none';
+        });
+
+        saveStatus.innerText = '⏱️ Plan Saved';
 
     }
 
@@ -611,13 +744,20 @@ ${remark}
 }
 
 (async () => {
+
+    await fillMissingDays();
+
     await loadToday();
-    if (rows.children.length === 0) { addRow(); }
+
+    if (rows.children.length === 0) {
+        addRow();
+    }
+
     await loadHistory();
 
     await generateMonthReports();
-})();
 
+})();
 
 
 document.addEventListener('input', (e) => {
@@ -672,3 +812,51 @@ document.addEventListener('input', (e) => {
     }
 
 });
+
+const subjects = [
+    "Vocabulary",
+    "History",
+    "Geography",
+    "English",
+    "Odia",
+    "Polity",
+    "Economic",
+    "Mathematics",
+    "Data Interpretation",
+    "Environment",
+    "Current Affairs",
+    "Art and Culture",
+    "Mock Tests"
+];
+
+function updateSubjectOptions() {
+
+    const selects = document.querySelectorAll('.subject');
+
+    const selected = [...selects]
+        .map(s => s.value)
+        .filter(Boolean);
+
+    selects.forEach(select => {
+
+        const current = select.value;
+
+        select.innerHTML =
+            '<option value="">Select Subject</option>';
+
+        subjects.forEach(sub => {
+
+            if (!selected.includes(sub) || sub === current) {
+
+                select.innerHTML +=
+                    `<option value="${sub}">${sub}</option>`;
+
+            }
+
+        });
+
+        select.value = current;
+
+    });
+
+}
