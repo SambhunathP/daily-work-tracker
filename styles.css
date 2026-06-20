@@ -493,3 +493,25 @@ body {
     }
 
 }
+
+.subject {
+    width: 100%;
+    min-width: 140px;
+    box-sizing: border-box;
+    padding: 8px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #555;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.subject:focus {
+    outline: none;
+    border-color: #ffffff;
+}
+
+.subject option {
+    background: #111;
+    color: #fff;
+}
