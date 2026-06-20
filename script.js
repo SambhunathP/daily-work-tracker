@@ -165,6 +165,31 @@ await generateMonthReports();
 
 window.saveDay = saveDay;
 
+async function saveAllocatedHour(){
+
+let data=[];
+
+document.querySelectorAll('#rows tr').forEach(r=>{
+let i=r.querySelectorAll('input');
+data.push({
+subject:i[0].value,
+given:i[1].value.trim()||"",
+achieved:""
+});
+});
+
+await set(ref(db,'workTracker/'+today),{
+locked:false,
+data:data
+});
+
+saveStatus.innerText='⏱️ Plan Saved';
+}
+
+window.saveAllocatedHour=saveAllocatedHour;
+
+
+
 async function loadToday(){
 
 let store = await getStore();
