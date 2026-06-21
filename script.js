@@ -59,6 +59,9 @@ function addRow() {
         <option value="Environment">Environment</option>
         <option value="Current Affairs">Current Affairs</option>
         <option value="Art and Culture">Art and Culture</option>
+        <option value="Physics">Physics</option>
+        <option value="Chemistry">Chemistry</option>
+        <option value="Biology">Biology</option>
         <option value="Mock Tests">Mock Tests</option>
             
         
@@ -835,7 +838,10 @@ const subjects = [
     "Environment",
     "Current Affairs",
     "Art and Culture",
-    "Mock Tests"
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "Mock Tests"  
 ];
 
 function updateSubjectOptions() {
