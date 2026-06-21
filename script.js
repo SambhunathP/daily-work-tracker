@@ -62,6 +62,7 @@ function addRow() {
         <option value="Physics">Physics</option>
         <option value="Chemistry">Chemistry</option>
         <option value="Biology">Biology</option>
+        <option value="Static GK">Mock Tests</option>
         <option value="Mock Tests">Mock Tests</option>
             
         
@@ -841,6 +842,7 @@ const subjects = [
     "Physics",
     "Chemistry",
     "Biology",
+    "Static GK",
     "Mock Tests"  
 ];
 
