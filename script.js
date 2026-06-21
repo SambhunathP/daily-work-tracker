@@ -102,16 +102,21 @@ async function fillMissingDays() {
 
     let store = await getStore();
 
-    const dates = Object.keys(store).sort();
+    const now = new Date();
 
-    if (dates.length === 0) return;
+    // First day of current month
+    let current = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
+    );
 
-    let current = new Date(dates[dates.length - 1]);
-    current.setDate(current.getDate() + 1);
-
-    let yesterday = new Date();
-    yesterday.setHours(0, 0, 0, 0);
-    yesterday.setDate(yesterday.getDate() - 1);
+    // Yesterday
+    let yesterday = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - 1
+    );
 
     while (current <= yesterday) {
 
@@ -120,25 +125,29 @@ async function fillMissingDays() {
             String(current.getMonth() + 1).padStart(2, '0') + '-' +
             String(current.getDate()).padStart(2, '0');
 
+        // Insert only if missing
         if (!store[key]) {
 
-            await set(ref(db, 'workTracker/' + key), {
+            await set(
+                ref(db, 'workTracker/' + key),
+                {
+                    locked: true,
 
-                locked: true,
-
-                data: [{
-                    subject: 'No Work',
-                    given: '00:00',
-                    achieved: '00:00'
-                }]
-
-            });
+                    data: [
+                        {
+                            subject: 'No Work',
+                            given: '00:00',
+                            achieved: '00:00'
+                        }
+                    ]
+                }
+            );
 
         }
 
         current.setDate(current.getDate() + 1);
-
     }
+
 }
 
 function calc() {
