@@ -553,46 +553,6 @@ async function generateWeeklyReport() {
             });
         }
     }
-
-//     let success = alloc ? ((ach / alloc) * 100).toFixed(2) : 0;
-
-//     wAlloc.innerText = minutesToTime(alloc);
-//     wAch.innerText = minutesToTime(ach);
-//     wRate.innerText = success + '%';
-
-//     progressBar.style.width = success + '%';
-
-//     if (success >= 85) {
-//         weekStatus.innerText = '🟢 Excellent';
-//         weekRemark.innerText = '🟢 Excellent';
-//     } else if (success >= 70) {
-//         weekStatus.innerText = '🟡 Good';
-//         weekRemark.innerText = '🟡 Good';
-//     } else {
-//         weekStatus.innerText = '🔴 Needs Improvement';
-//         weekRemark.innerText = '🔴 Needs Improvement';
-//     }
-
-//     weeklyReport.style.display = 'block';
-
-let success = alloc ? ((ach / alloc) * 100).toFixed(2) : 0;
-
-if (success >= 85) {
-
-    weekStatus.innerText =
-        `🟢 Weekly Success : ${success}% (Excellent)`;
-
-} else if (success >= 70) {
-
-    weekStatus.innerText =
-        `🟡 Weekly Success : ${success}% (Good)`;
-
-} else {
-
-    weekStatus.innerText =
-        `🔴 Weekly Success : ${success}% (Needs Improvement)`;
-
-}
 }
 
 async function generateMonthReports() {
