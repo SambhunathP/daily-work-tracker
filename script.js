@@ -593,6 +593,7 @@ if (success >= 85) {
         `🔴 Weekly Success : ${success}% (Needs Improvement)`;
 
 }
+}
 
 async function generateMonthReports() {
     let store = await getStore();
@@ -664,7 +665,7 @@ async function generateMonthReports() {
 
     });
 
-}
+
 
 
 
