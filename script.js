@@ -145,7 +145,7 @@ async function fillMissingDays() {
                             given: '00:00',
                             achieved: '00:00',
                             completed: true
-                            
+
                         }
                     ]
                 }
@@ -322,11 +322,11 @@ async function saveAllocatedHour() {
     });
 
     await loadHistory();
-await generateMonthReports();
-await generateWeeklyReport();
+    await generateMonthReports();
+    await generateWeeklyReport();
 
     await loadHistory();
-    
+
 
     saveStatus.innerText = '⏱️ Plan Saved';
 
@@ -396,16 +396,18 @@ async function loadToday() {
 
 
     document.querySelectorAll('#rows tr').forEach(row => {
-
-        if (
-            !row.querySelector('.done').disabled
-        ) {
-
-            row.lastElementChild.style.display = 'none';
-
-        }
-
+        row.lastElementChild.style.display = 'none';
     });
+
+
+    const actionHeader =
+        document.querySelector('th:last-child');
+
+    if (actionHeader) {
+
+        actionHeader.style.display = 'none';
+
+    }
 
 
 
@@ -884,9 +886,9 @@ async function finalizeYesterday() {
 
     await loadHistory();
 
-await generateMonthReports();
+    await generateMonthReports();
 
-await generateWeeklyReport();
+    await generateWeeklyReport();
 
 })();
 
