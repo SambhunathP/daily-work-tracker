@@ -574,7 +574,7 @@ async function generateWeeklyReport() {
 //     }
 
 //     weeklyReport.style.display = 'block';
-// }
+
 let success = alloc ? ((ach / alloc) * 100).toFixed(2) : 0;
 
 if (success >= 85) {
@@ -664,7 +664,7 @@ async function generateMonthReports() {
 
     });
 
-
+}
 
 
 
