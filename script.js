@@ -64,7 +64,7 @@ function addRow() {
         <option value="Chemistry">Chemistry</option>
         <option value="Biology">Biology</option>
         <option value="Static GK">Static Gk</option>
-        <option value="Static GK">Odisha Gk</option>
+        <option value="Odisha Gk">Odisha Gk</option>
         <option value="Mock Tests">Mock Tests</option>
             
         
@@ -183,21 +183,6 @@ function calc() {
 
 document.addEventListener('input', calc);
 
-function lockInputs() {
-
-    document.querySelectorAll('input,select').forEach(i => {
-        i.disabled = true;
-    });
-
-    document.querySelectorAll('button').forEach(btn => {
-
-        if (btn.innerText.includes('❌')) {
-            btn.style.display = 'none';
-        }
-
-    });
-
-}
 async function saveDay() {
 
     let store = await getStore();
@@ -226,11 +211,7 @@ async function saveDay() {
 
         if (
 
-            timeToMinutes(achieved)
-
-            >=
-
-            timeToMinutes(given)
+            achieved && achieved !== "00:00"
 
         ) {
 
@@ -276,8 +257,11 @@ async function saveDay() {
     await loadToday();
 
     await loadHistory();
+    await generateWeeklyReport();
 
     await generateMonthReports();
+
+
 
 
     saveStatus.innerText = '✅ Progress Saved';
@@ -321,11 +305,15 @@ async function saveAllocatedHour() {
         data: data
     });
 
-    await loadHistory();
-    await generateMonthReports();
-    await generateWeeklyReport();
+    await loadToday();
 
     await loadHistory();
+
+    await generateMonthReports();
+
+    await generateWeeklyReport();
+
+
 
 
     saveStatus.innerText = '⏱️ Plan Saved';
