@@ -143,7 +143,9 @@ async function fillMissingDays() {
                         {
                             subject: 'No Work',
                             given: '00:00',
-                            achieved: '00:00'
+                            achieved: '00:00',
+                            completed: true
+                            
                         }
                     ]
                 }
@@ -200,10 +202,7 @@ async function saveDay() {
 
     let store = await getStore();
 
-    if (store[today] && store[today].locked) {
-        alert('Already saved.');
-        return;
-    }
+    let oldData = store[today]?.data || [];
 
     let data = [];
 
@@ -213,60 +212,77 @@ async function saveDay() {
         const given = r.querySelector('.given').value.trim();
         const achieved = r.querySelector('.done').value.trim();
 
-        if (subject) {
-            data.push({
-                subject,
-                given: given || "00:00",
-                achieved: achieved || "00:00"
-            });
+        if (!subject) return;
+
+
+        let old =
+            oldData.find(x => x.subject === subject);
+
+
+        let completed =
+            old?.completed || false;
+
+
+
+        if (
+
+            timeToMinutes(achieved)
+
+            >=
+
+            timeToMinutes(given)
+
+        ) {
+
+            completed = true;
+
         }
+
+
+
+        data.push({
+
+            subject,
+
+            given: given || "00:00",
+
+            achieved: achieved || "00:00",
+
+            completed
+
+        });
+
 
     });
 
-    if (data.length === 0) {
-        alert("Please add at least one subject.");
-        return;
-    }
 
-    // await set(
-    // ref(db,'workTracker/'+today),
-    // {locked:true,data:data}
-    // );
 
     await set(
+
         ref(db, 'workTracker/' + today),
+
         {
-            locked: true,
+
+            locked: false,
+
             data: data
+
         }
+
     );
 
+
+
     await loadToday();
+
     await loadHistory();
 
-
-
-
-
-
-    lockInputs();
-
-    document.querySelectorAll('th').forEach(th => {
-        if (th.innerText.trim() === 'Action') {
-            th.style.display = 'none';
-        }
-    });
-
-    document.querySelectorAll('#rows tr').forEach(row => {
-        row.lastElementChild.style.display = 'none';
-    });
-
-    saveStatus.innerText = '✅ Saved & Locked';
-    document.getElementById('addBtn').disabled = true;
-
-
-
     await generateMonthReports();
+
+
+    saveStatus.innerText = '✅ Progress Saved';
+
+
 }
 
 window.saveDay = saveDay;
@@ -275,10 +291,7 @@ async function saveAllocatedHour() {
 
     let store = await getStore();
 
-    if (store[today]?.locked) {
-        alert("Day already locked.");
-        return;
-    }
+
 
     let data = [];
 
@@ -291,7 +304,8 @@ async function saveAllocatedHour() {
             data.push({
                 subject,
                 given: given || "00:00",
-                achieved: "00:00"
+                achieved: "00:00",
+                completed: false
             });
         }
 
@@ -306,6 +320,13 @@ async function saveAllocatedHour() {
         locked: false,
         data: data
     });
+
+    await loadHistory();
+await generateMonthReports();
+await generateWeeklyReport();
+
+    await loadHistory();
+    
 
     saveStatus.innerText = '⏱️ Plan Saved';
 
@@ -340,45 +361,54 @@ async function loadToday() {
         lastRow.querySelector('.done').value =
             r.achieved || '';
 
+
+        if (r.completed) {
+
+            lastRow.querySelector('.subject').disabled = true;
+
+            lastRow.querySelector('.given').disabled = true;
+
+            lastRow.querySelector('.done').disabled = true;
+
+            lastRow.lastElementChild.style.display = 'none';
+
+        }
+
+
         updateSubjectOptions();
 
     });
 
-    if (store[today].locked) {
 
-        lockInputs();
 
-        saveStatus.innerText = '🔒 Saved Record';
+    document.getElementById('addBtn').disabled = true;
 
-        document.getElementById('addBtn').disabled = true;
 
-        document.querySelectorAll('th').forEach(th => {
-            if (th.innerText.trim() === 'Action') {
-                th.style.display = 'none';
-            }
+    document.querySelectorAll('.given,.subject')
+        .forEach(x => {
+
+            x.disabled = true;
+
         });
 
-        document.querySelectorAll('#rows tr').forEach(row => {
+
+    saveStatus.innerText = '⏱️ Plan Saved';
+
+
+    document.querySelectorAll('#rows tr').forEach(row => {
+
+        if (
+            !row.querySelector('.done').disabled
+        ) {
+
             row.lastElementChild.style.display = 'none';
-        });
 
-    }
-    else {
+        }
 
-        // Planned state
+    });
 
-        document.getElementById('addBtn').disabled = true;
 
-        document.querySelectorAll('.subject,.given')
-            .forEach(x => x.disabled = true);
 
-        document.querySelectorAll('#rows tr').forEach(row => {
-            row.lastElementChild.style.display = 'none';
-        });
-
-        saveStatus.innerText = '⏱️ Plan Saved';
-
-    }
 
     calc();
 }
@@ -757,22 +787,111 @@ ${remark}
 </div>`;
     }
 }
+async function finalizeYesterday() {
 
+
+    let store = await getStore();
+
+
+    let d = new Date();
+
+    d.setDate(d.getDate() - 1);
+
+
+
+    let y =
+
+        d.getFullYear()
+
+        + '-' +
+
+        String(d.getMonth() + 1)
+
+            .padStart(2, '0')
+
+        + '-' +
+
+        String(d.getDate())
+
+            .padStart(2, '0');
+
+
+
+    if (!store[y]) return;
+
+
+
+    let changed = false;
+
+
+
+    store[y].data.forEach(r => {
+
+
+        if (!r.completed) {
+
+
+            r.completed = true;
+
+            r.achieved = "00:00";
+
+
+            changed = true;
+
+
+        }
+
+
+    });
+
+
+
+    if (changed) {
+
+
+        await set(
+
+            ref(db, 'workTracker/' + y),
+
+            store[y]
+
+        );
+
+
+    }
+
+
+
+}
 (async () => {
+
+
+    await finalizeYesterday();
 
     await fillMissingDays();
 
+
     await loadToday();
 
+
+
     if (rows.children.length === 0) {
+
         addRow();
+
     }
+
 
     await loadHistory();
 
-    await generateMonthReports();
+await generateMonthReports();
+
+await generateWeeklyReport();
 
 })();
+
+
+
 
 
 document.addEventListener('input', (e) => {
@@ -847,7 +966,7 @@ const subjects = [
     "Biology",
     "Static GK",
     "Odisha Gk",
-    "Mock Tests"  
+    "Mock Tests"
 ];
 
 function updateSubjectOptions() {
