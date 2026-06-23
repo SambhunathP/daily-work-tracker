@@ -57,6 +57,7 @@ function addRow() {
         <option value="Mathematics">Mathematics</option>
         <option value="Reasoning">Reasoning</option>
         <option value="Data Interpretation">Data Interpretation</option>
+        <option value="Computer">Computer</option>
         <option value="Environment">Environment</option>
         <option value="Current Affairs">Current Affairs</option>
         <option value="Art and Culture">Art and Culture</option>
@@ -927,6 +928,7 @@ const subjects = [
     "Mathematics",
     "Reasoning",
     "Data Interpretation",
+    "Computer",
     "Environment",
     "Current Affairs",
     "Art and Culture",
