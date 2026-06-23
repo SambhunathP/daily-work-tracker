@@ -319,6 +319,7 @@ async function saveAllocatedHour() {
     saveStatus.innerText = '⏱️ Plan Saved';
 
     document.getElementById('addBtn').disabled = true;
+    document.getElementById('saveAllocatedBtn').disabled = true;
 }
 
 window.saveAllocatedHour = saveAllocatedHour;
@@ -370,7 +371,7 @@ async function loadToday() {
 
 
     document.getElementById('addBtn').disabled = true;
-
+document.getElementById('saveAllocatedBtn').disabled = true;
 
     document.querySelectorAll('.given,.subject')
         .forEach(x => {
