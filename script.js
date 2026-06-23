@@ -371,7 +371,7 @@ async function loadToday() {
 
 
     document.getElementById('addBtn').disabled = true;
-document.getElementById('saveAllocatedBtn').disabled = true;
+    document.getElementById('saveAllocatedBtn').disabled = true;
 
     document.querySelectorAll('.given,.subject')
         .forEach(x => {
