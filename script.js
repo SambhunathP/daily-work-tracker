@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
 
+// JavaScript logic for the Daily Work Tracker app
+
 const firebaseConfig = {
     apiKey: "AIzaSyDcvJNa7HeG-FlZZkQJjjZaeefFyum6o9k",
     authDomain: "daily-work-tracker-feb29.firebaseapp.com",
@@ -13,6 +15,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const rowTemplate = document.getElementById('subjectRowTemplate');
 
 function timeToMinutes(time) {
     if (!time) return 0;
@@ -39,59 +42,32 @@ const today =
     String(nowLocal.getDate()).padStart(2, '0');
 
 function addRow() {
+    if (!rowTemplate) return;
 
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-<td>
-    <select class="subject">
-   
-        <option value="">Select Subject</option>
-        <option value="Vocabulary">Vocabulary</option>
-        <option value="History">History</option>
-        <option value="Geography">Geography</option>
-        <option value="English">English</option>
-        <option value="Odia">Odia</option>
-        <option value="Polity">Polity</option>
-        <option value="Economic">Economic</option>
-        <option value="Mathematics">Mathematics</option>
-        <option value="Reasoning">Reasoning</option>
-        <option value="Data Interpretation">Data Interpretation</option>
-        <option value="Computer">Computer</option>
-        <option value="Environment">Environment</option>
-        <option value="Current Affairs">Current Affairs</option>
-        <option value="Art and Culture">Art and Culture</option>
-        <option value="Physics">Physics</option>
-        <option value="Chemistry">Chemistry</option>
-        <option value="Biology">Biology</option>
-        <option value="Static GK">Static Gk</option>
-        <option value="Odisha Gk">Odisha Gk</option>
-        <option value="Mock Tests">Mock Tests</option>
-            
-        
-    </select>
-</td>
-<td><input type="text" class="given" placeholder="H:MM"></td>
-<td><input type="text" class="done" placeholder="H:MM"></td>
-<td>
-<button type="button"
-onclick="
-this.closest('tr').remove();
-updateSubjectOptions();
-calc();
-">
-❌
-</button>
-</td>
-`;
+    const tr = rowTemplate.content.firstElementChild.cloneNode(true);
     document.getElementById('rows').appendChild(tr);
 
     const select = tr.querySelector('.subject');
     select.addEventListener('change', updateSubjectOptions);
 
+    const removeButton = tr.querySelector('.remove-row-btn');
+    removeButton.addEventListener('click', () => {
+        tr.remove();
+        updateSubjectOptions();
+        calc();
+    });
+
     updateSubjectOptions();
 }
 window.addRow = addRow;
+
+const addButton = document.getElementById('addBtn');
+const saveAllocatedButton = document.getElementById('saveAllocatedBtn');
+const saveDayButton = document.getElementById('saveDayBtn');
+
+if (addButton) addButton.addEventListener('click', addRow);
+if (saveAllocatedButton) saveAllocatedButton.addEventListener('click', saveAllocatedHour);
+if (saveDayButton) saveDayButton.addEventListener('click', saveDay);
 
 function tick() {
     clock.innerText = new Date().toLocaleString();
@@ -197,6 +173,8 @@ async function saveDay() {
         const subject = r.querySelector('.subject').value;
         const given = r.querySelector('.given').value.trim();
         const achieved = r.querySelector('.done').value.trim();
+        const comment =
+            r.querySelector('.comment').value.trim();
 
         if (!subject) return;
 
@@ -229,6 +207,8 @@ async function saveDay() {
             given: given || "00:00",
 
             achieved: achieved || "00:00",
+
+            comment: comment,
 
             completed
 
@@ -263,38 +243,43 @@ async function saveDay() {
     await generateMonthReports();
 
 
-
+    document.querySelectorAll('.comment').forEach(input => {
+        input.disabled = true;
+    });
 
     saveStatus.innerText = '✅ Progress Saved';
 
 
 }
 
+
 window.saveDay = saveDay;
 
 async function saveAllocatedHour() {
 
-    let store = await getStore();
-
-
-
     let data = [];
+    const rows = document.querySelectorAll("#rows tr");
 
-    document.querySelectorAll('#rows tr').forEach(r => {
+    for (const r of rows) {
 
-        const subject = r.querySelector('.subject').value;
-        const given = r.querySelector('.given').value.trim();
+        const subject = r.querySelector(".subject").value;
+        const given = r.querySelector(".given").value.trim();
 
-        if (subject) {
+        if (subject && !given) {
+            alert(`Please enter allocated hours for ${subject}.`);
+            return; // Stop the entire save process
+        }
+
+        if (subject && given) {
             data.push({
                 subject,
-                given: given || "00:00",
+                given,
                 achieved: "00:00",
+                comment: "",
                 completed: false
             });
         }
-
-    });
+    }
 
     if (data.length === 0) {
         alert("Please add at least one subject.");
@@ -307,21 +292,22 @@ async function saveAllocatedHour() {
     });
 
     await loadToday();
-
     await loadHistory();
-
     await generateMonthReports();
-
     await generateWeeklyReport();
-
-
-
 
     saveStatus.innerText = '⏱️ Plan Saved';
 
     document.getElementById('addBtn').disabled = true;
     document.getElementById('saveAllocatedBtn').disabled = true;
+    document.getElementById("commentHeader").style.display = "";
+
+    document.querySelectorAll(".commentCell").forEach(cell => {
+        cell.style.display = "";
+    });
 }
+
+window.saveAllocatedHour = saveAllocatedHour;
 
 window.saveAllocatedHour = saveAllocatedHour;
 
@@ -331,7 +317,11 @@ async function loadToday() {
 
     let store = await getStore();
 
-    if (!store[today]) return;
+    if (!store[today]) {
+        const header = document.getElementById("commentHeader");
+        if (header) header.style.display = "none";
+        return;
+    }
 
     document.getElementById('rows').innerHTML = '';
 
@@ -350,6 +340,12 @@ async function loadToday() {
 
         lastRow.querySelector('.done').value =
             r.achieved || '';
+        lastRow.querySelector('.comment').value =
+            r.comment || "";
+
+        document.getElementById("commentHeader").style.display = "";
+
+        lastRow.querySelector(".commentCell").style.display = "";
 
 
         if (r.completed) {
@@ -359,6 +355,7 @@ async function loadToday() {
             lastRow.querySelector('.given').disabled = true;
 
             lastRow.querySelector('.done').disabled = true;
+            lastRow.querySelector('.comment').disabled = true;
 
             lastRow.lastElementChild.style.display = 'none';
 
@@ -476,6 +473,7 @@ async function loadHistory() {
 <td>${r.subject}</td>
 <td>${r.given}</td>
 <td>${r.achieved}</td>
+<td>${r.comment || ""}</td>
 </tr>`;
             });
 
@@ -485,6 +483,7 @@ async function loadHistory() {
 <td>Total</td>
 <td>${minutesToTime(alloc)}</td>
 <td>${minutesToTime(ach)}</td>
+<td></td>
 </tr>`;
 
 
@@ -517,6 +516,7 @@ ${remark}
 <th>Subject</th>
 <th>Allocated</th>
 <th>Achieved</th>
+<th>Comment</th>
 </tr>
 ${rows}
 </table>
