@@ -705,7 +705,7 @@ ${minutesToTime(w.ach)}
 
 
 
-    for (let m = 1; m <= 12; m++) {
+    for (let m = 0; m <3; m++) {
         let target = new Date();
         target.setMonth(target.getMonth() - m);
 
@@ -728,6 +728,22 @@ ${minutesToTime(w.ach)}
         if (success >= 85) remark = '🟢 Excellent';
         else if (success >= 70) remark = '🟡 Good';
 
+
+        const daysInMonth =
+    target.getMonth() === now.getMonth() &&
+    target.getFullYear() === now.getFullYear()
+        ? now.getDate()          // Current month: days passed
+        : new Date(
+            target.getFullYear(),
+            target.getMonth() + 1,
+            0
+        ).getDate();             // Previous months: total days
+
+const avgAchieved = Math.round(ach / daysInMonth);
+
+
+
+
         monthHistory.innerHTML += `
 <div class="monthPremium">
 
@@ -743,6 +759,12 @@ ${minutesToTime(w.ach)}
 <div class="monthMetric">
 <label>Total Achieved</label>
 <span>${minutesToTime(ach)}</span>
+</div>
+
+
+<div class="monthMetric">
+<label>Average Achieved / Day</label>
+<span>${minutesToTime(avgAchieved)}</span>
 </div>
 
 <div class="monthMetric">
