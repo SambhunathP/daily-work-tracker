@@ -83,24 +83,26 @@ async function getStore() {
 
 async function fillMissingDays() {
 
-    let store = await getStore();
+    const store = await getStore();
 
-    const now = new Date();
+    // ==========================================
+    // TRACKER START DATE
+    // 30 May 2026
+    // ==========================================
+    const current = new Date(2026, 4, 30);
+    current.setHours(0, 0, 0, 0);
 
-    // First day of current month
-    let current = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        1
-    );
+    // ==========================================
+    // YESTERDAY
+    // ==========================================
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
 
-    // Yesterday
-    let yesterday = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() - 1
-    );
-
+    // ==========================================
+    // CHECK EVERY DATE
+    // 30 May 2026 → Yesterday
+    // ==========================================
     while (current <= yesterday) {
 
         const key =
@@ -108,33 +110,32 @@ async function fillMissingDays() {
             String(current.getMonth() + 1).padStart(2, '0') + '-' +
             String(current.getDate()).padStart(2, '0');
 
-        // Insert only if missing
+        // Create ONLY if the date does not exist.
+        // Never overwrite existing Firebase data.
         if (!store[key]) {
 
             await set(
                 ref(db, 'workTracker/' + key),
                 {
                     locked: true,
-
                     data: [
                         {
                             subject: 'No Work',
                             given: '00:00',
                             achieved: '00:00',
+                            comment: '',
                             completed: true
-
                         }
                     ]
                 }
             );
 
+            console.log('Created missing date:', key);
         }
 
         current.setDate(current.getDate() + 1);
     }
-
 }
-
 function calc() {
 
     let g = 0, a = 0;
@@ -857,31 +858,26 @@ async function finalizeYesterday() {
 }
 (async () => {
 
-
-    await finalizeYesterday();
-
+    // First create any missing previous dates
     await fillMissingDays();
 
+    // Then finalize yesterday
+    await finalizeYesterday();
 
+    // Load today's data
     await loadToday();
 
-
-
+    // If today has no data, show one empty row
     if (rows.children.length === 0) {
-
         addRow();
-
     }
 
-
+    // Load reports
     await loadHistory();
-
     await generateMonthReports();
-
     await generateWeeklyReport();
 
 })();
-
 
 
 
