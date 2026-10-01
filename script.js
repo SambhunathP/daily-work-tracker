@@ -244,9 +244,7 @@ async function saveDay() {
     await generateMonthReports();
 
 
-    document.querySelectorAll('.comment').forEach(input => {
-        input.disabled = true;
-    });
+  
 
     saveStatus.innerText = '✅ Progress Saved';
 
